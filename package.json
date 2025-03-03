@@ -17,12 +17,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/northcoders/be-nc-news.git"
+    "url": "git+https://github.com/zdvman/be-bean-remote.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "homepage": "https://github.com/northcoders/be-nc-news#readme",
+  "homepage": "https://github.com/zdvman/be-bean-remote#readme",
   "devDependencies": {
     "husky": "^8.0.2",
     "jest": "^27.5.1",
