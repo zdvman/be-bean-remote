@@ -37,8 +37,8 @@ To run this project locally, ensure you have:
 1️⃣ **Clone the repository:**
 
 ```bash
-git clone https://github.com/zdvman/be-nc-news.git
-cd be-nc-news
+git clone https://github.com/zdvman/be-bean-remote.git
+cd be-bean-remote
 ```
 
 2️⃣ **Install dependencies:**
@@ -83,6 +83,62 @@ Ensure these files are included in `.gitignore` to keep them private.
 
 ```bash
 npm run setup-dbs   # Creates the databases
+```
+
+Install PostGIS Locally
+On Ubuntu/Debian-based Linux
+
+```bash
+sudo apt-get update
+sudo apt-get install postgis postgresql-15-postgis-3  # Adjust versions if needed
+```
+
+On macOS (Homebrew)
+
+```bash
+brew install postgis
+```
+
+Confirm PostGIS is installed by running:
+
+```bash
+psql --version
+```
+
+You should see a version number and possibly mention of PostGIS if it’s bundled.
+
+Enable PostGIS in Your Database
+Open a terminal (inside VSCode or your system terminal).
+Connect to your local PostgreSQL database (the one you use for your Bean Remote project). For example:
+
+```bash
+psql -d bean_remote_dev  # or whatever your DB is called
+```
+
+Once in the psql prompt, run:
+
+```sql
+CREATE EXTENSION IF NOT EXISTS postgis;
+```
+
+If you see CREATE EXTENSION, it means it was installed successfully.
+If you get an error like ERROR: could not open extension control file ..., it means PostGIS isn’t installed properly.
+
+Repeat for your test database as well, if you have a separate one (e.g. bean_remote_test).
+
+```sql
+\c bean_remote_test   -- switch to the test DB
+CREATE EXTENSION IF NOT EXISTS postgis;
+```
+
+Now both your dev and test databases have the PostGIS extension enabled.
+
+```bash
+sudo apt-get update
+sudo apt-get install postgis postgresql-15-postgis-3  # Adjust versions if needed
+```
+
+```bash
 npm run seed        # Seeds the development database
 ```
 
