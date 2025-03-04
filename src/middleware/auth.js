@@ -1,10 +1,14 @@
 // src/middleware/auth.js
-const admin = require('../config/firebase'); // Import Firebase Admin
-const db = require('./../db/connection'); // Assuming you’re using PostgreSQL
+const admin = require('../config/firebase');
+const db = require('../db/connection');
 
+// Middleware to authenticate user
 const authMiddleware = (req, res, next) => {
   const token = req.headers.authorization?.split('Bearer ')[1];
-  if (!token) return res.status(401).json({ msg: 'No token provided' });
+
+  if (!token) {
+    return res.status(401).json({ msg: 'No token provided' });
+  }
 
   admin
     .auth()
@@ -12,59 +16,50 @@ const authMiddleware = (req, res, next) => {
     .then((decoded) => {
       req.user = decoded; // Attach Firebase user data to request
 
-      // Fetch user from PostgreSQL using firebase_uid
-      return db.query(
-        'SELECT id, firebase_uid, email, full_name, avatar, role, points, badges, fcm_token, notification_preferences FROM users WHERE firebase_uid = $1',
-        [decoded.uid]
-      );
+      return db.query('SELECT * FROM users WHERE firebase_uid = $1', [
+        decoded.uid,
+      ]);
     })
     .then((result) => {
-      if (!result || !result.rows || result.rows.length === 0) {
-        throw new Error('User not found in database');
+      if (!result || !result.rows) {
+        console.error('Database error');
+        return res.status(500).json({ msg: 'Database error' });
       }
 
-      req.user.dbUser = result.rows[0];
+      // If user not found, pass decoded data to request body
+      if (result.rows.length === 0) {
+        console.log('🔍 User not found, passing decoded data to request body');
+        req.body = { ...req.user }; // Pass decoded user to body
+        return next(); // Let the route handler create the user
+      }
+
+      req.user.dbUser = result.rows[0]; // Attach user from DB
       next();
     })
-    // .then(({ rows }) => {
-    //   req.user.dbUser = rows[0] || null; // Set to null if not found
-
-    //   if (!req.user.dbUser) {
-    //     // Optionally create the user in PostgreSQL or return an error
-    //     const newUserQuery = `
-    //       INSERT INTO users (firebase_uid, email, full_name, avatar, role, points, badges, fcm_token, notification_preferences)
-    //       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-    //       RETURNING id, firebase_uid, email, full_name, avatar, role, points, badges, fcm_token, notification_preferences
-    //     `;
-    //     const newUserValues = [
-    //       req.user.uid,
-    //       req.user.email || 'default@email.com', // Use Firebase email or a default
-    //       req.user.name || 'Unnamed User', // Use Firebase name or a default
-    //       'some default URL for avatar', // Use your default avatar URL
-    //       'user', // Default role
-    //       0, // Default points
-    //       '{}', // Default badges (empty array)
-    //       null, // Default FCM token (can be updated later)
-    //       '{}', // Default notification preferences (empty JSONB)
-    //     ];
-
-    //     return db.query(newUserQuery, newUserValues);
-    //   }
-
-    //   next();
-    // })
-    // .then(({ rows }) => {
-    //   if (req.user.dbUser === null) {
-    //     req.user.dbUser = rows[0]; // Update with newly created user
-    //   }
-    //   next();
-    // })
     .catch((error) => {
-      console.error('Authentication error:', error.message);
+      console.error('🔥 Authentication error:', error.message);
       if (!res.headersSent) {
-        res.status(401).json({ msg: 'Invalid token' });
+        return res.status(401).json({ msg: 'Invalid token' });
       }
     });
+};
+
+// Middleware to allow access to user or admin
+const allowToUserOrAdmin = (req, res, next) => {
+  if (!req.user || !req.user.dbUser) {
+    return res.status(401).json({ msg: 'User not authenticated' });
+  }
+
+  const requestedUserId = parseInt(req.params.id, 10); // Convert to number
+  const authenticatedUserId = req.user.dbUser.id;
+  const isAdmin = req.user.dbUser.role === 'admin';
+
+  if (!isAdmin && requestedUserId !== authenticatedUserId) {
+    console.log('🚫 Not admin and not the profile owner');
+    return res.status(403).json({ msg: 'Forbidden' });
+  }
+
+  next();
 };
 
 // Middleware to restrict access by role
@@ -78,4 +73,4 @@ const restrictTo = (role) => (req, res, next) => {
   next();
 };
 
-module.exports = { authMiddleware, restrictTo };
+module.exports = { authMiddleware, restrictTo, allowToUserOrAdmin };
