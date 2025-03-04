@@ -1,7 +1,7 @@
 // users.js
 module.exports = [
   {
-    firebase_uid: 'testUID123',
+    firebase_uid: 'userUID123',
     email: 'alice@example.com',
     full_name: 'Alice Example',
     avatar: 'https://example.com/alice.png',
@@ -16,7 +16,7 @@ module.exports = [
     fcm_token: null,
   },
   {
-    firebase_uid: 'testUID456',
+    firebase_uid: 'businessUID456',
     email: 'bobbiz@example.com',
     full_name: 'Bob Business',
     avatar: 'https://example.com/bob.png',
@@ -31,7 +31,7 @@ module.exports = [
     fcm_token: null,
   },
   {
-    firebase_uid: 'testUID789',
+    firebase_uid: 'adminUID789',
     email: 'caroladmin@example.com',
     full_name: 'Carol Admin',
     avatar: 'https://example.com/carol.png',
