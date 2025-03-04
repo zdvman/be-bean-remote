@@ -1,4 +1,4 @@
-const { selectCafes } = require('../models/cafes.models');
+const { selectCafes, selectCafeByID } = require('../models/cafes.models');
 
 function getCafes(req, res, next) {
   return selectCafes()
@@ -8,6 +8,16 @@ function getCafes(req, res, next) {
     .catch(next);
 }
 
+function getCafeByID(req, res, next) {
+    const { id } = req.params;
+    return selectCafeByID(id)
+    .then((cafe) => {
+      res.status(200).send({ cafe });
+    })
+    .catch(next);
+}
+
 module.exports = {
-  getCafes
+  getCafes,
+  getCafeByID
 };
