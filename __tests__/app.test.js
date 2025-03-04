@@ -1,6 +1,6 @@
 // __tests__/app.test.js
 // Mock the firebase-admin module
-jest.mock('firebase-admin', () => ({
+jest.mock("firebase-admin", () => ({
   auth: jest.fn().mockReturnThis(),
   initializeApp: jest.fn(),
   credential: {
@@ -8,19 +8,23 @@ jest.mock('firebase-admin', () => ({
   },
 }));
 
-const firebaseAdmin = require('firebase-admin');
-const endpointsJson = require('../endpoints.json');
-const request = require('supertest');
-const app = require('../src/app.js');
-const db = require('../src/db/connection.js');
-const testData = require('../src/db/data/test-data/index.js');
-const seed = require('../src/db/seeds/seed.js');
-require('jest-sorted');
+const firebaseAdmin = require("firebase-admin");
+const endpointsJson = require("../endpoints.json");
+const request = require("supertest");
+const app = require("../src/app.js");
+const db = require("../src/db/connection.js");
+const testData = require("../src/db/data/test-data/index.js");
+const seed = require("../src/db/seeds/seed.js");
+require("jest-sorted");
 
-describe('GET /api', () => {
-  test('200: Responds with an object detailing the documentation for each endpoint', () => {
+afterAll(async () => {
+  await db.end();
+});
+
+describe("GET /api", () => {
+  test("200: Responds with an object detailing the documentation for each endpoint", () => {
     return request(app)
-      .get('/api')
+      .get("/api")
       .expect(200)
       .then(({ body: { endpoints } }) => {
         expect(endpoints).toEqual(endpointsJson);
@@ -28,21 +32,17 @@ describe('GET /api', () => {
   });
 });
 
-describe('GET /users', () => {
+describe("GET /users", () => {
   beforeAll(async () => {
     await seed(testData);
   });
 
-  afterAll(async () => {
-    await db.end();
-  });
-
-  test('200: returns array of users if the user is admin', async () => {
+  test("200: returns array of users if the user is admin", async () => {
     // Mock Firebase behavior for an admin user
     firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
-      uid: 'adminUID789',
-      email: 'caroladmin@example.com',
-      full_name: 'Carol Admin',
+      uid: "adminUID789",
+      email: "caroladmin@example.com",
+      full_name: "Carol Admin",
     });
 
     await db.query(
@@ -50,19 +50,19 @@ describe('GET /users', () => {
     );
 
     const response = await request(app)
-      .get('/api/users')
-      .set('Authorization', 'Bearer fakeToken')
+      .get("/api/users")
+      .set("Authorization", "Bearer fakeToken")
       .expect(200);
 
     expect(Array.isArray(response.body.users)).toBe(true);
   });
 
-  test('403: forbidden if the user is not admin', async () => {
+  test("403: forbidden if the user is not admin", async () => {
     // Mock Firebase behavior for a non-admin user
     firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
-      uid: 'userUID123',
-      email: 'alice@example.com',
-      full_name: 'Alice Example',
+      uid: "userUID123",
+      email: "alice@example.com",
+      full_name: "Alice Example",
     });
 
     await db.query(
@@ -70,15 +70,37 @@ describe('GET /users', () => {
     );
 
     const response = await request(app)
-      .get('/api/users')
-      .set('Authorization', 'Bearer fakeToken')
+      .get("/api/users")
+      .set("Authorization", "Bearer fakeToken")
       .expect(403);
 
-    expect(response.body.msg).toBe('Forbidden');
+    expect(response.body.msg).toBe("Forbidden");
   });
 
-  test('401: no token provided', async () => {
-    const response = await request(app).get('/api/users').expect(401);
-    expect(response.body.msg).toBe('No token provided');
+  test("401: no token provided", async () => {
+    const response = await request(app).get("/api/users").expect(401);
+    expect(response.body.msg).toBe("No token provided");
+  });
+});
+describe("", () => {
+  beforeAll(async () => {
+    await seed(testData);
+  });
+  test.only("200: should respond with an object containing  id", () => {
+    return request(app)
+      .get("/api/reviews/1")
+      .expect(200)
+      .then(({ body }) => {
+        review = body.reviews[0];
+        expect(review).toMatchObject({
+          id: 1,
+          user_id: 1, // Alice
+          cafe_id: 1, // Remote Bean Central
+          rating: 5,
+          review_text: "Fantastic coffee, great atmosphere!",
+          helpful_count: 0,
+          created_at: expect.any(String),
+        });
+      });
   });
 });
