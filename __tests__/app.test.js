@@ -17,6 +17,10 @@ const testData = require('../src/db/data/test-data/index.js');
 const seed = require('../src/db/seeds/seed.js');
 require('jest-sorted');
 
+afterAll(async () => {
+  await db.end();
+});
+
 describe('GET /api', () => {
   test('200: Responds with an object detailing the documentation for each endpoint', () => {
     return request(app)
@@ -31,10 +35,6 @@ describe('GET /api', () => {
 describe('GET /users', () => {
   beforeAll(async () => {
     await seed(testData);
-  });
-
-  afterAll(async () => {
-    await db.end();
   });
 
   test('200: returns array of users if the user is admin', async () => {
@@ -81,4 +81,32 @@ describe('GET /users', () => {
     const response = await request(app).get('/api/users').expect(401);
     expect(response.body.msg).toBe('No token provided');
   });
+});
+
+describe('GET /cafes', () => {
+  beforeAll(async () => {
+    await seed(testData);
+  });
+
+test("200: Responds with an object containing all cafes", () => {
+  return request(app)
+      .get('/api/cafes')
+      .expect(200)
+      .then((response) => {
+        const cafesArr = response.body.cafes;
+        expect(Array.isArray(cafesArr)).toBe(true);
+        expect(cafesArr[0].owner_id).toBe(2);
+        expect(cafesArr[0].name).toBe('Remote Bean Central');
+        expect(cafesArr[0].description).toBe('A cozy cafe for remote workers');
+        expect(cafesArr[0].address).toBe('123 Coffee St, Manchester');
+        // expect(cafesArr[0].location).toEqual({
+        //   type: 'Point',
+        //   coordinates: [-2.2426, 53.4808],
+        // });
+        expect(cafesArr[0].busy_status).toBe('quiet');
+        expect(cafesArr[0].is_verified).toBe(false);
+
+      })
+    
+});
 });
