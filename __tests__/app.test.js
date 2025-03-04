@@ -108,3 +108,36 @@ test("200: Responds with an object containing all cafes", () => {
     
 });
 });
+
+describe('GET /cafes/:cafe_id', () => {
+test("200: Responds with a single cafe", () => {
+  return request(app)
+    .get("/api/cafes/1")
+    .expect(200)
+    .then((response) => {
+      const cafe = response.body.cafe;
+      expect(cafe.owner_id).toBe(2);
+      expect(cafe.name).toBe('Remote Bean Central');
+      expect(cafe.description).toBe("A cozy cafe for remote workers");
+      expect(cafe.address).toBe("123 Coffee St, Manchester");
+      expect(cafe.busy_status).toBe("quiet");
+      expect(cafe.is_verified).toBe(false);
+    });
+});
+test('GET:404 sends an appropriate status and error message when given a valid but non-existent id', () => {
+  return request(app)
+    .get('/api/cafes/999')
+    .expect(404)
+    .then((response) => {
+      expect(response.body.msg).toBe('No cafe found for cafe_id: 999');
+    });
+});
+test('GET:400 sends an appropriate status and error message when given an invalid id', () => {
+  return request(app)
+    .get('/api/cafes/not-a-cafe')
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe('Bad request');
+    });
+});
+});
