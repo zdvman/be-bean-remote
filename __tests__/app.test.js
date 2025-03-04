@@ -17,6 +17,10 @@ const testData = require('../src/db/data/test-data/index.js');
 const seed = require('../src/db/seeds/seed.js');
 require('jest-sorted');
 
+beforeAll(async () => {
+  await seed(testData);
+});
+
 afterAll(async () => {
   await db.end();
 });
@@ -33,9 +37,6 @@ describe('GET /api', () => {
 });
 
 describe('GET /users', () => {
-  beforeAll(async () => {
-    await seed(testData);
-  });
 
   test('200: returns array of users if the user is admin', async () => {
     // Mock Firebase behavior for an admin user
@@ -84,10 +85,7 @@ describe('GET /users', () => {
 });
 
 describe('GET /cafes', () => {
-  beforeAll(async () => {
-    await seed(testData);
-  });
-
+  
 test("200: Responds with an object containing all cafes", () => {
   return request(app)
       .get('/api/cafes')
