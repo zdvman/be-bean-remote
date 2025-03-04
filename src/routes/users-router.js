@@ -13,17 +13,15 @@ const {
   allowToUserOrAdmin,
 } = require('../middleware/auth'); // Import both middleware
 
-// Protected route: Get all users (requires authentication, optionally restrict to admins)
+// Protected route: Get all users (requires authentication, restrict to admins only)
 usersRouter
   .route('/')
   .get(authMiddleware, restrictTo('admin'), getUsers)
   .post(authMiddleware, postUser);
 
+// Protected route: Get user by user ID (requires authentication, resticts to user (tyhe owner of profile) or admin)
 usersRouter
   .route('/:id')
   .get(authMiddleware, allowToUserOrAdmin, getUserByUserId);
-
-// Protected route: Get user by username (requires authentication)
-// usersRouter.route('/:username').get(authMiddleware, getUserByUsername);
 
 module.exports = usersRouter;
