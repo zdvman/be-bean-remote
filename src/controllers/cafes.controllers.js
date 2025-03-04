@@ -1,9 +1,9 @@
-const { getCafes } = require('../models/cafes.models');
+const { selectCafes } = require('../models/cafes.models');
 
 function getCafes(req, res, next) {
-  return fetchCafes()
+  return selectCafes()
     .then((cafes) => {
-      response.status(200).send({ cafes });
+      res.status(200).send({ cafes });
     })
     .catch(next);
 }
