@@ -8,11 +8,26 @@ const selectReviewsByCafeId = ({ cafe_id }) => {
       if (rows.length === 0) {
         return Promise.reject({
           status: 404,
-          msg: `No article found for article_id: ${cafe_id}`,
+          msg: `No reviews found for cafe_id: ${cafe_id}`,
         });
       }
       return rows;
     });
 };
 
-module.exports = { selectReviewsByCafeId };
+const selectReviewsById = ({ id }) => {
+  return db
+    .query(`SELECT * FROM reviews WHERE id =$1`, [id])
+
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: `No reviews found for id: ${id}`,
+        });
+      }
+      return rows;
+    });
+};
+
+module.exports = { selectReviewsByCafeId, selectReviewsById };
