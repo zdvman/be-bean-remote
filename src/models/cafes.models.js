@@ -21,7 +21,36 @@ function selectCafeByID(cafe_id) {
     });
 }
 
+function selectCafesByAmenity(amenity) {
+    const queryStr = `
+    SELECT DISTINCT cafes.*
+    FROM cafes
+    JOIN cafe_amenities ON cafes.id = cafe_amenities.cafe_id
+    JOIN amenities ON cafe_amenities.amenity_id = amenities.id
+    WHERE amenities.name = $1;
+    `
+    const args = [amenity];
+    return db.query(queryStr, args).then(({ rows }) => {
+      return rows;
+    })
+}
+
+function selectAmenitiesByCafeId(id) {
+    const queryStr = `
+    SELECT amenities.name
+    FROM amenities
+    JOIN cafe_amenities ON amenities.id = cafe_amenities.amenity_id
+    WHERE cafe_amenities.cafe_id = $1;
+    `
+    const args = [id]
+    return db.query(queryStr, args).then(({ rows }) => {
+        return rows;
+      })
+}
+
 module.exports = {
   selectCafes,
-  selectCafeByID
+  selectCafeByID,
+  selectCafesByAmenity,
+  selectAmenitiesByCafeId
 };
