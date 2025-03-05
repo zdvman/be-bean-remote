@@ -30,4 +30,21 @@ const selectReviewsById = ({ id }) => {
     });
 };
 
-module.exports = { selectReviewsByCafeId, selectReviewsById };
+const selectVotesByReviewId = ({ review_id }) => {
+  return db
+    .query(`SELECT * FROM review_votes WHERE review_id =$1`, [review_id])
+
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return [];
+      }
+
+      return rows;
+    });
+};
+
+module.exports = {
+  selectReviewsByCafeId,
+  selectReviewsById,
+  selectVotesByReviewId,
+};
