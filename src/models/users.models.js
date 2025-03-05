@@ -30,7 +30,9 @@ function insertUser({ uid, email, full_name }) {
   });
 }
 
-function selectUserByUserId({ id }) {
+function selectUserByUserId( id ) {
+  console.log("Checking user_id in DB:", id, typeof id);
+
   const sql = `SELECT * FROM users WHERE users.id = $1`;
   const args = [id];
   return db.query(sql, args).then(({ rows }) => {
