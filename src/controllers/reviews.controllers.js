@@ -1,6 +1,8 @@
+const { param } = require("../app");
 const {
   selectReviewsByCafeId,
   selectReviewsById,
+  selectVotesByReviewId,
 } = require("../models/reviews.model");
 const getReviewsByCafeId = (req, res, next) => {
   selectReviewsByCafeId(req.params)
@@ -22,7 +24,18 @@ const getReviewsById = (req, res, next) => {
     });
 };
 
+const getVoteByReviewId = (req, res, next) => {
+  selectVotesByReviewId(req.params)
+    .then((votes) => {
+      res.status(200).send({ votes });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
 module.exports = {
   getReviewsByCafeId,
   getReviewsById,
+  getVoteByReviewId,
 };
