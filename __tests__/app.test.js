@@ -78,7 +78,7 @@ describe("", () => {
   beforeAll(async () => {
     await seed(testData);
   });
-  test("200: should respond with an object containing  id", () => {
+  test("200: should respond with an object containing cafe id", () => {
     return request(app)
       .get("/api/reviews/1")
       .expect(200)
@@ -93,6 +93,25 @@ describe("", () => {
           helpful_count: 0,
           created_at: expect.any(String),
         });
+      });
+  });
+
+  test("400: should respond with Bad request", () => {
+    return request(app)
+      .get("/api/reviews/fdnjnk")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+
+  test("200: should respond with an object containing id", () => {
+    return request(app)
+      .get("/api/reviews/1")
+      .expect(200)
+      .then(({ body }) => {
+        review = body.reviews[0];
+        expect(review.id).toBe(1);
       });
   });
 
