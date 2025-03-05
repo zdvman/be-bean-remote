@@ -115,6 +115,26 @@ describe("", () => {
       });
   });
 
+  test("should filter votes by a specific id", () => {
+    return request(app)
+      .get("/api/reviews/1/votes")
+      .expect(200)
+      .then(({ body }) => {
+        const votes = body.votes;
+        expect(Array.isArray(votes)).toBe(true);
+        votes.forEach((vote) => {
+          expect(vote).toEqual(
+            expect.objectContaining({
+              user_id: expect.any(Number),
+              review_id: expect.any(Number),
+              article_id: expect.any(Number),
+              vote_type: expect.any(String),
+            })
+          );
+        });
+      });
+  });
+
   test("201: Post a new user and return new user", async () => {
     // Mock Firebase behavior for an admin user
     firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
