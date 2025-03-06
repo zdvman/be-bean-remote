@@ -24,15 +24,41 @@ exports.formatComments = (comments, idLookup) => {
   });
 };
 
-exports.checkUserExists = (username) => {
-  const args = [username];
-  const sql = `SELECT * FROM users WHERE username = $1`;
-  return db.query(sql, args).then(({ rows }) => {
-    if (rows.length === 0)
+exports.checkUserExists = (id) => {
+  const sql = `SELECT id FROM users WHERE id = $1`;
+  return db.query(sql, [id]).then(({ rows }) => {
+    if (rows.length === 0) {
       return Promise.reject({
         status: 404,
-        msg: `User with username "${username}" is not found`,
+        msg: `User with ID "${id}" is not found`,
       });
-    return;
+    }
+    return Promise.resolve(); // ✅ Ensure it returns a Promise
+  });
+};
+
+exports.checkCafeExists = (id) => {
+  const sql = `SELECT id FROM cafes WHERE id = $1`;
+  return db.query(sql, [id]).then(({ rows }) => {
+    if (rows.length === 0) {
+      return Promise.reject({
+        status: 404,
+        msg: `Cafe with ID "${id}" is not found`,
+      });
+    }
+    return Promise.resolve();
+  });
+};
+
+exports.checkCafeIsAlreadyInFavourites = (user_id, cafe_id) => {
+  const sql = `SELECT 1 FROM user_favorites WHERE user_id = $1 AND cafe_id = $2`;
+  return db.query(sql, [user_id, cafe_id]).then(({ rows }) => {
+    if (rows.length > 0) {
+      return Promise.reject({
+        status: 409,
+        msg: `Cafe with ID "${cafe_id}" is already in favourites`,
+      });
+    }
+    return Promise.resolve();
   });
 };
