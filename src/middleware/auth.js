@@ -34,7 +34,7 @@ const authMiddleware = (req, res, next) => {
         req.body = { ...req.user }; // Pass decoded user to request body
 
         // If the request is a POST to create a new user, proceed
-        console.log(req.method, req.originalUrl);
+        // console.log(req.method, req.originalUrl);
         if (req.method === 'POST' && req.originalUrl === '/api/users') {
           return next();
         }

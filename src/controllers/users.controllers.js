@@ -37,8 +37,7 @@ function postUser(request, response, next) {
 }
 
 function getUserByUserId(request, response, next) {
-  const id = request.params.id;
-  return selectUserByUserId(id)
+  return selectUserByUserId(request?.params)
     .then((user) => {
       console.log(user);
       response.status(200).send({ user });
