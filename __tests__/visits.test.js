@@ -67,3 +67,80 @@ describe("GET /api/visits?user_id=1",() => {
         });
     });
   });
+
+  describe("POST: api/visits", () => {
+    test("return the new visit", () => {
+      return request(app)
+        .post("/api/visits")
+        .send({
+          user_id: 2,
+          cafe_id: 1
+        })
+        .expect(201)
+        .then((res) => {
+          expect(res.body.visit).toMatchObject({
+            user_id: 2,
+            cafe_id: 1,
+            visited_at: expect.any(String)
+          });
+        });
+    });
+    test("400: responds with an error if user_id is missing", () => {
+      return request(app)
+        .post("/api/visits")
+        .send({ cafe_id: 1 }) // Missing user_id
+        .expect(400)
+        .then((res) => {
+          expect(res.body.msg).toBe("Bad request");
+        });
+    });
+    
+    test("400: responds with an error if cafe_id is missing", () => {
+      return request(app)
+        .post("/api/visits")
+        .send({ user_id: 2 }) // Missing cafe_id
+        .expect(400)
+        .then((res) => {
+          expect(res.body.msg).toBe("Bad request");
+        });
+    });
+    test("404: responds with an error if user_id does not exist", () => {
+      return request(app)
+        .post("/api/visits")
+        .send({ user_id: 9999, cafe_id: 1 }) // Non-existent user
+        .expect(404)
+        .then((res) => {
+          expect(res.body.msg).toBe("Not found");
+        });
+    });
+    
+    test("404: responds with an error if cafe_id does not exist", () => {
+      return request(app)
+        .post("/api/visits")
+        .send({ user_id: 2, cafe_id: 9999 }) // Non-existent cafe
+        .expect(404)
+        .then((res) => {
+          expect(res.body.msg).toBe("Not found");
+        });
+    });
+    test("400: responds with an error if user_id is not an integer", () => {
+      return request(app)
+        .post("/api/visits")
+        .send({ user_id: "abc", cafe_id: 1 }) // Invalid user_id
+        .expect(400)
+        .then((res) => {
+          expect(res.body.msg).toBe("Bad request");
+        });
+    });
+    
+    test("400: responds with an error if cafe_id is not an integer", () => {
+      return request(app)
+        .post("/api/visits")
+        .send({ user_id: 2, cafe_id: "xyz" }) // Invalid cafe_id
+        .expect(400)
+        .then((res) => {
+          expect(res.body.msg).toBe("Bad request");
+        });
+    });
+       
+  })
