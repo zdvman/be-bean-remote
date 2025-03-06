@@ -1,11 +1,11 @@
+const { checkUserExists } = require('../db/seeds/utils.js');
 const { selectVisitsByUser } = require('../models/visits.models');
-const { selectUserByUserId } = require('../models/users.models');
 
 function getVisitsByUser(req, res, next) {
-    const user_id = req.query.user_id;
-    selectUserByUserId(user_id)
+    const id = req?.query?.user_id;
+    return checkUserExists( id )
     .then(() => {
-      return selectVisitsByUser(user_id);
+      return selectVisitsByUser( id );
     })
     .then((visits) => {
       if (visits.length === 0) {
