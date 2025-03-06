@@ -60,15 +60,15 @@ describe('GET /cafes/:cafe_id', () => {
   });
   test('GET:404 sends an appropriate status and error message when given a valid but non-existent id', () => {
     return request(app)
-      .get('/api/cafes/999')
+      .get('/api/visits?user_id=4')
       .expect(404)
       .then((response) => {
-        expect(response.body.msg).toBe('No cafe found for cafe_id: 999');
+        expect(response.body.msg).toBe('User with ID "4" is not found');
       });
   });
   test('GET:400 sends an appropriate status and error message when given an invalid id', () => {
     return request(app)
-      .get('/api/cafes/not-a-cafe')
+      .get('/api/visits?user_id=abc')
       .expect(400)
       .then((response) => {
         expect(response.body.msg).toBe('Bad request');
