@@ -3,6 +3,13 @@ const {
   selectUserByUsername,
   insertUser,
   selectUserByUserId,
+  updateUserByUserId,
+  updateUserAmenitiesByUserId,
+  deleteUser,
+  selectUserFavouritesByUserId,
+  insertUserFavouriteCafeByUserId,
+  deleteUserFavouriteCafe,
+  selectUserReviewsByUserId,
 } = require('../models/users.models');
 
 function getUsers(request, response, next) {
@@ -39,9 +46,72 @@ function getUserByUserId(request, response, next) {
     .catch(next);
 }
 
+function patchUserByUserId(request, response, next) {
+  return updateUserByUserId(request?.params, request?.body)
+    .then((user) => {
+      response.status(200).send({ user });
+    })
+    .catch(next);
+}
+
+function patchUserAmenitiersByUserId(request, response, next) {
+  return updateUserAmenitiesByUserId(request?.params, request?.body)
+    .then((userAmenities) => {
+      response.status(200).send({ userAmenities });
+    })
+    .catch(next);
+}
+
+function deleteUserByUserId(request, response, next) {
+  return deleteUser(request?.params)
+    .then((msg) => {
+      response.status(200).send(msg);
+    })
+    .catch(next);
+}
+
+function getUserFavouritesByUserId(request, response, next) {
+  return selectUserFavouritesByUserId(request?.params)
+    .then((favourites) => {
+      response.status(200).send({ favourites });
+    })
+    .catch(next);
+}
+
+function postUserFavouriteCafeByUserId(request, response, next) {
+  return insertUserFavouriteCafeByUserId(request?.params, request?.body)
+    .then((favourite) => {
+      response.status(201).send({ favourite });
+    })
+    .catch(next);
+}
+
+function deleteUserFavouriteCafeByCafeId(request, response, next) {
+  return deleteUserFavouriteCafe(request?.params)
+    .then((msg) => {
+      response.status(200).send(msg);
+    })
+    .catch(next);
+}
+
+function getUserReviewsByUserId(request, response, next) {
+  return selectUserReviewsByUserId(request?.params)
+    .then((reviews) => {
+      response.status(200).send({ reviews });
+    })
+    .catch(next);
+}
+
 module.exports = {
   getUsers,
   getUserByUsername,
   postUser,
   getUserByUserId,
+  patchUserByUserId,
+  patchUserAmenitiersByUserId,
+  deleteUserByUserId,
+  getUserFavouritesByUserId,
+  postUserFavouriteCafeByUserId,
+  deleteUserFavouriteCafeByCafeId,
+  getUserReviewsByUserId,
 };
