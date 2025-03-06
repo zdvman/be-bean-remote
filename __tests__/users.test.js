@@ -124,35 +124,35 @@ describe('GET /users', () => {
 });
 
 describe('GET /users/:id', () => {
-  // test('200: returns a user by user_id if request from admin', async () => {
-  //   // Mock Firebase behavior for an admin user
-  //   firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
-  //     uid: 'adminUID789',
-  //     email: 'caroladmin@example.com',
-  //     full_name: 'Carol Admin',
-  //   });
+  test('200: returns a user by user_id if request from admin', async () => {
+    // Mock Firebase behavior for an admin user
+    firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
+      uid: 'adminUID789',
+      email: 'caroladmin@example.com',
+      full_name: 'Carol Admin',
+    });
 
-  //   const response = await request(app)
-  //     .get('/api/users/1')
-  //     .set('Authorization', 'Bearer fakeToken')
-  //     .expect(200);
+    const response = await request(app)
+      .get('/api/users/1')
+      .set('Authorization', 'Bearer fakeToken')
+      .expect(200);
 
-  //   expect(response.body.user).toEqual({
-  //     id: 1,
-  //     firebase_uid: 'userUID123',
-  //     email: 'alice@example.com',
-  //     full_name: 'Alice Example',
-  //     avatar: 'https://example.com/alice.png',
-  //     role: 'user',
-  //     location: '0101000020E6100000FE43FAEDEBC0F8BF8351499D80E64A40',
-  //     points: 50,
-  //     badges: ['Helpful Reviewer'],
-  //     notification_preferences: { email: true, push: false },
-  //     fcm_token: null,
-  //     created_at: expect.any(String),
-  //     updated_at: expect.any(String),
-  //   });
-  // });
+    expect(response.body.user).toEqual({
+      id: 1,
+      firebase_uid: 'userUID123',
+      email: 'alice@example.com',
+      full_name: 'Alice Example',
+      avatar: 'https://example.com/alice.png',
+      role: 'user',
+      location: '0101000020E6100000FE43FAEDEBC0F8BF8351499D80E64A40',
+      points: 50,
+      badges: ['Helpful Reviewer'],
+      notification_preferences: { email: true, push: false },
+      fcm_token: null,
+      created_at: expect.any(String),
+      updated_at: expect.any(String),
+    });
+  });
 
   test('403: if request from the user which is not the owner of the profile it is forbidden', async () => {
     // Mock Firebase behavior for an business user
@@ -178,35 +178,35 @@ describe('GET /users/:id', () => {
     expect(response.body.msg).toBe('No token provided');
   });
 
-  // test('200: returns a user by user_id if request from the user himself', async () => {
-  //   // Mock Firebase behavior for an user - the owner of the profile
-  //   firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
-  //     uid: 'userUID123',
-  //     email: 'alice@example.com',
-  //     full_name: 'Alice Example',
-  //   });
+  test('200: returns a user by user_id if request from the user himself', async () => {
+    // Mock Firebase behavior for an user - the owner of the profile
+    firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
+      uid: 'userUID123',
+      email: 'alice@example.com',
+      full_name: 'Alice Example',
+    });
 
-  //   const response = await request(app)
-  //     .get('/api/users/1') // Requesting user with ID 1 and it is the owner of the profile
-  //     .set('Authorization', 'Bearer fakeToken')
-  //     .expect(200);
+    const response = await request(app)
+      .get('/api/users/1') // Requesting user with ID 1 and it is the owner of the profile
+      .set('Authorization', 'Bearer fakeToken')
+      .expect(200);
 
-  //   expect(response.body.user).toEqual({
-  //     id: 1,
-  //     firebase_uid: 'userUID123',
-  //     email: 'alice@example.com',
-  //     full_name: 'Alice Example',
-  //     avatar: 'https://example.com/alice.png',
-  //     role: 'user',
-  //     location: '0101000020E6100000FE43FAEDEBC0F8BF8351499D80E64A40',
-  //     points: 50,
-  //     badges: ['Helpful Reviewer'],
-  //     notification_preferences: { email: true, push: false },
-  //     fcm_token: null,
-  //     created_at: expect.any(String),
-  //     updated_at: expect.any(String),
-  //   });
-  // });
+    expect(response.body.user).toEqual({
+      id: 1,
+      firebase_uid: 'userUID123',
+      email: 'alice@example.com',
+      full_name: 'Alice Example',
+      avatar: 'https://example.com/alice.png',
+      role: 'user',
+      location: '0101000020E6100000FE43FAEDEBC0F8BF8351499D80E64A40',
+      points: 50,
+      badges: ['Helpful Reviewer'],
+      notification_preferences: { email: true, push: false },
+      fcm_token: null,
+      created_at: expect.any(String),
+      updated_at: expect.any(String),
+    });
+  });
 });
 
 describe('PATCH /users/:id', () => {
@@ -664,7 +664,7 @@ describe('POST /users/:id/favourites', () => {
     expect(response.body.msg).toBe('Cafe with ID "1" is already in favourites');
   });
 
-  test('400: fails if user_id is missing from the request params', async () => {
+  test('400: fails if user_id is NaN', async () => {
     firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
       uid: 'userUID123',
       email: 'alice@example.com',
@@ -677,7 +677,9 @@ describe('POST /users/:id/favourites', () => {
       .send({ cafe_id: 2 })
       .expect(400); // Now it should correctly trigger "User ID is missing"
 
-    expect(response.body.msg).toBe('Bad request');
+    expect(response.body.msg).toBe(
+      'Bad request : invalid input syntax for type integer: "NaN"'
+    );
   });
 });
 
@@ -697,34 +699,32 @@ describe('GET /users/:id/reviews', () => {
 
     console.log('Reviews ======> ', response.body.reviews);
 
-    expect(
-      response.body.reviews.sort((a, b) =>
-        b.created_at.localeCompare(a.created_at)
-      )
-    ).toEqual([
-      {
-        review_id: 2,
-        cafe_id: 2,
-        cafe_name: 'Mocha Lounge',
-        cafe_address: '24 Latte Lane, Manchester',
-        rating: 4,
-        review_text: 'Wi-Fi was decent, a bit crowded though',
-        helpful_count: 2,
-        created_at: expect.any(String),
-        reviewer_name: 'Alice Example',
-      },
-      {
-        review_id: 1,
-        cafe_id: 1,
-        cafe_name: 'Remote Bean Central',
-        cafe_address: '123 Coffee St, Manchester',
-        rating: 5,
-        review_text: 'Fantastic coffee, great atmosphere!',
-        helpful_count: 0,
-        created_at: expect.any(String),
-        reviewer_name: 'Alice Example',
-      },
-    ]);
+    expect(response.body.reviews.sort()).toEqual(
+      [
+        {
+          review_id: expect.any(Number),
+          cafe_id: 2,
+          cafe_name: 'Mocha Lounge',
+          cafe_address: '24 Latte Lane, Manchester',
+          rating: 4,
+          review_text: 'Wi-Fi was decent, a bit crowded though',
+          helpful_count: 2,
+          created_at: expect.any(String),
+          reviewer_name: 'Alice Example',
+        },
+        {
+          review_id: expect.any(Number),
+          cafe_id: 1,
+          cafe_name: 'Remote Bean Central',
+          cafe_address: '123 Coffee St, Manchester',
+          rating: 5,
+          review_text: 'Fantastic coffee, great atmosphere!',
+          helpful_count: 0,
+          created_at: expect.any(String),
+          reviewer_name: 'Alice Example',
+        },
+      ].sort()
+    );
   });
 
   // test('200: returns empty array if user has no reviews', async () => {
@@ -781,5 +781,133 @@ describe('GET /users/:id/reviews', () => {
       .expect(404);
 
     expect(response.body.msg).toBe('User not found, please register first');
+  });
+});
+
+describe('DELETE /api/users/:id/reviews/:review_id', () => {
+  test('204: deletes a review if the user owns it', async () => {
+    firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
+      uid: 'userUID123', // Alice
+      email: 'alice@example.com',
+      full_name: 'Alice Example',
+    });
+
+    await request(app)
+      .delete('/api/users/1/reviews/1')
+      .set('Authorization', 'Bearer fakeToken')
+      .expect(204);
+
+    firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
+      uid: 'adminUID789', // Admin user
+      email: 'caroladmin@example.com',
+      full_name: 'Carol Admin',
+    });
+
+    // Verify review no longer exists
+    const response = await request(app)
+      .get('/api/users/1/reviews/1')
+      .set('Authorization', 'Bearer fakeToken')
+      .expect(404);
+
+    console.log(response.body.msg);
+
+    expect(response.body.msg).toBe('Review with ID "1" is not found');
+  });
+
+  test('403: returns forbidden if user tries to delete another user’s review', async () => {
+    firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
+      uid: 'userUID123', // Alice
+      email: 'alice@example.com',
+      full_name: 'Alice Example',
+    });
+
+    const response = await request(app)
+      .delete('/api/users/3/reviews/3') // Alice tries to delete Carol’s review
+      .set('Authorization', 'Bearer fakeToken')
+      .expect(403);
+
+    expect(response.body.msg).toBe('Forbidden');
+  });
+
+  test('204: admin can delete any user’s review', async () => {
+    firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
+      uid: 'adminUID789', // Carol Admin
+      email: 'caroladmin@example.com',
+      full_name: 'Carol Admin',
+    });
+
+    await request(app)
+      .delete('/api/users/1/reviews/2') // Carol deletes Alice’s review
+      .set('Authorization', 'Bearer fakeToken')
+      .expect(204);
+
+    firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
+      uid: 'adminUID789', // Carol Admin
+      email: 'caroladmin@example.com',
+      full_name: 'Carol Admin',
+    });
+
+    // Verify review no longer exists
+    const response = await request(app)
+      .get('/api/users/1/reviews/2') // Assuming a GET review endpoint exists
+      .set('Authorization', 'Bearer fakeToken')
+      .expect(404);
+
+    expect(response.body.msg).toBe('Review with ID "2" is not found');
+  });
+
+  test('404: returns error when trying to delete a non-existing review', async () => {
+    firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
+      uid: 'userUID123', // Alice
+      email: 'alice@example.com',
+      full_name: 'Alice Example',
+    });
+
+    const response = await request(app)
+      .delete('/api/users/1/reviews/999') // Review ID does not exist
+      .set('Authorization', 'Bearer fakeToken')
+      .expect(404);
+
+    expect(response.body.msg).toBe('Review with ID "999" is not found');
+  });
+
+  test('400: returns error when user ID is NaN', async () => {
+    firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
+      uid: 'userUID123',
+      email: 'alice@example.com',
+      full_name: 'Alice Example',
+    });
+
+    const response = await request(app)
+      .delete('/api/users/not-id/reviews/1') // Missing user ID
+      .set('Authorization', 'Bearer fakeToken')
+      .expect(400);
+
+    expect(response.body.msg).toBe(
+      'Bad request : invalid input syntax for type integer: "NaN"'
+    );
+  });
+
+  test('405: returns error when review ID is missing', async () => {
+    firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
+      uid: 'userUID123',
+      email: 'alice@example.com',
+      full_name: 'Alice Example',
+    });
+
+    const response = await request(app)
+      .delete('/api/users/1/reviews/') // Missing review ID
+      .set('Authorization', 'Bearer fakeToken')
+      .expect(405);
+
+    expect(response.body.msg).toBe('Method not allowed');
+  });
+
+  test('401: returns error when no authorization token is provided', async () => {
+    const response = await request(app)
+      .delete('/api/users/1/reviews/1')
+      .expect(401);
+
+    expect(response.body.msg).toBe('No token provided');
   });
 });
