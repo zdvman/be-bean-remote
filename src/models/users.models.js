@@ -319,6 +319,69 @@ function selectUserReviewsByUserId({ id }) {
   });
 }
 
+function selectUserReviewByReviewId({ id, review_id }) {
+  if (!id) {
+    return Promise.reject({ msg: 'User ID is missing', status: 400 });
+  }
+  if (!review_id) {
+    return Promise.reject({ msg: 'Review ID is missing', status: 400 });
+  }
+  return checkUserExists(id).then(() => {
+    const sql = `
+    SELECT 
+      reviews.id AS review_id,
+      reviews.cafe_id,
+      cafes.name AS cafe_name,
+      cafes.address AS cafe_address,
+      reviews.rating,
+      reviews.review_text,
+      reviews.helpful_count,
+      reviews.created_at,
+      users.full_name AS reviewer_name  -- Add reviewer's name
+    FROM reviews
+    JOIN cafes ON reviews.cafe_id = cafes.id
+    JOIN users ON reviews.user_id = users.id  -- Join with users table
+    WHERE reviews.user_id = $1 AND reviews.id = $2;
+  `;
+
+    const args = [id, review_id];
+
+    return db.query(sql, args).then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({
+          msg: `Review with ID "${review_id}" is not found`,
+          status: 404,
+        });
+      }
+      return rows[0];
+    });
+  });
+}
+
+function deleteUserReview({ id, review_id }) {
+  if (!id) {
+    return Promise.reject({ msg: 'User ID is missing', status: 400 });
+  }
+  if (!review_id) {
+    return Promise.reject({ msg: 'Review ID is missing', status: 400 });
+  }
+
+  return checkUserExists(id)
+    .then(() => {
+      const sql = `DELETE FROM reviews WHERE user_id = $1 AND id = $2;`;
+      return db.query(sql, [id, review_id]);
+    })
+    .then(({ rowCount }) => {
+      if (rowCount === 0) {
+        return Promise.reject({
+          msg: `Review with ID "${review_id}" is not found`,
+          status: 404,
+        });
+      }
+      return;
+    });
+}
+
 module.exports = {
   selectUsers,
   selectUserByUsername,
@@ -331,4 +394,6 @@ module.exports = {
   insertUserFavouriteCafeByUserId,
   deleteUserFavouriteCafe,
   selectUserReviewsByUserId,
+  selectUserReviewByReviewId,
+  deleteUserReview,
 };

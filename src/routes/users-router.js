@@ -12,6 +12,8 @@ const {
   postUserFavouriteCafeByUserId,
   getUserFavouritesByUserId,
   getUserReviewsByUserId,
+  getUserReviewByReviewId,
+  deleteUserReviewByReviewId,
 } = require('../controllers/users.controllers');
 const {
   authMiddleware,
@@ -49,5 +51,10 @@ usersRouter
 usersRouter
   .route('/:id/reviews')
   .get(authMiddleware, allowToUserOrAdmin, getUserReviewsByUserId);
+
+usersRouter
+  .route('/:id/reviews/:review_id')
+  .get(authMiddleware, allowToUserOrAdmin, getUserReviewByReviewId)
+  .delete(authMiddleware, allowToUserOrAdmin, deleteUserReviewByReviewId);
 
 module.exports = usersRouter;

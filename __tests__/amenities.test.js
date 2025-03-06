@@ -144,9 +144,8 @@ describe('GET /api/amenities/:id', () => {
       .set('Authorization', 'Bearer fakeToken')
       .expect(400);
 
-    expect(response.body.msg).toBe('Bad request');
-    expect(response.body.error).toBe(
-      'invalid input syntax for type integer: "not-a-number"'
+    expect(response.body.msg).toBe(
+      'Bad request : invalid input syntax for type integer: "not-a-number"'
     );
   });
 });
