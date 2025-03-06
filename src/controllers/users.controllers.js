@@ -10,6 +10,8 @@ const {
   insertUserFavouriteCafeByUserId,
   deleteUserFavouriteCafe,
   selectUserReviewsByUserId,
+  selectUserReviewByReviewId,
+  deleteUserReview,
 } = require('../models/users.models');
 
 function getUsers(request, response, next) {
@@ -101,6 +103,22 @@ function getUserReviewsByUserId(request, response, next) {
     .catch(next);
 }
 
+function getUserReviewByReviewId(request, response, next) {
+  return selectUserReviewByReviewId(request?.params)
+    .then((review) => {
+      response.status(200).send({ review });
+    })
+    .catch(next);
+}
+
+function deleteUserReviewByReviewId(request, response, next) {
+  return deleteUserReview(request?.params)
+    .then(() => {
+      response.status(204).send();
+    })
+    .catch(next);
+}
+
 module.exports = {
   getUsers,
   getUserByUsername,
@@ -113,4 +131,6 @@ module.exports = {
   postUserFavouriteCafeByUserId,
   deleteUserFavouriteCafeByCafeId,
   getUserReviewsByUserId,
+  getUserReviewByReviewId,
+  deleteUserReviewByReviewId,
 };
