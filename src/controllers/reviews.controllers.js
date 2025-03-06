@@ -1,11 +1,11 @@
-const { param } = require("../app");
 const {
   selectReviewsByCafeId,
   selectReviewsById,
   selectVotesByReviewId,
-} = require("../models/reviews.model");
+} = require('../models/reviews.model');
+
 const getReviewsByCafeId = (req, res, next) => {
-  selectReviewsByCafeId(req.params)
+  selectReviewsByCafeId(req?.params)
     .then((reviews) => {
       res.status(200).send({ reviews });
     })
@@ -15,7 +15,7 @@ const getReviewsByCafeId = (req, res, next) => {
 };
 
 const getReviewsById = (req, res, next) => {
-  selectReviewsById(req.params)
+  selectReviewsById(req?.params)
     .then((reviews) => {
       res.status(200).send({ reviews });
     })
@@ -25,7 +25,7 @@ const getReviewsById = (req, res, next) => {
 };
 
 const getVoteByReviewId = (req, res, next) => {
-  selectVotesByReviewId(req.params)
+  selectVotesByReviewId(req?.params)
     .then((votes) => {
       res.status(200).send({ votes });
     })
