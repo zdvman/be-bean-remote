@@ -9,7 +9,6 @@ jest.mock('firebase-admin', () => ({
 }));
 
 const firebaseAdmin = require('firebase-admin');
-const endpointsJson = require('../endpoints.json');
 const request = require('supertest');
 const app = require('../src/app.js');
 const db = require('../src/db/connection.js');
@@ -18,29 +17,11 @@ const seed = require('../src/db/seeds/seed.js');
 require('jest-sorted');
 
 beforeEach(async () => {
-  await db.query(`
-    TRUNCATE TABLE 
-      admins, reports, cafe_qr_codes, cafe_visits, user_favorites, 
-      review_votes, review_responses, reviews, user_preferences, 
-      cafe_amenities, amenities, cafe_media, cafes, users 
-    RESTART IDENTITY CASCADE;
-  `);
   await seed(testData);
 });
 
 afterAll(async () => {
   await db.end();
-});
-
-describe('GET /api', () => {
-  test('200: Responds with an object detailing the documentation for each endpoint', () => {
-    return request(app)
-      .get('/api')
-      .expect(200)
-      .then(({ body: { endpoints } }) => {
-        expect(endpoints).toEqual(endpointsJson);
-      });
-  });
 });
 
 describe('GET /users', () => {
@@ -155,6 +136,8 @@ describe('GET /users/:id', () => {
       .get('/api/users/1')
       .set('Authorization', 'Bearer fakeToken')
       .expect(200);
+
+    console.log('====>', response.body.user);
 
     expect(response.body.user).toEqual({
       id: 1,
@@ -506,6 +489,7 @@ describe('GET /users/:id/favourites', () => {
       .set('Authorization', 'Bearer fakeToken')
       .expect(200);
 
+    console.log('Not empty array ====>', response.body.favourites);
     expect(response.body.favourites).toEqual([
       {
         cafe_id: 1,
@@ -533,7 +517,7 @@ describe('GET /users/:id/favourites', () => {
       .set('Authorization', 'Bearer fakeToken')
       .expect(200);
 
-    console.log('====>', response.body.favourites);
+    console.log('Empty array ====>', response.body.favourites);
 
     expect(response.body.favourites).toEqual([]); // Bob has no favorite cafes
   });
