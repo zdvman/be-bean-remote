@@ -1,5 +1,5 @@
 const { checkUserExists } = require('../db/seeds/utils.js');
-const { selectVisitsByUser } = require('../models/visits.models');
+const { selectVisitsByUser, insertVisit } = require('../models/visits.models');
 
 function getVisitsByUser(req, res, next) {
     const id = req?.query?.user_id;
@@ -16,6 +16,18 @@ function getVisitsByUser(req, res, next) {
     .catch(next);
 }
 
+function addVisit(req, res, next) {
+  const newVisit = req.body;
+  return insertVisit(newVisit)
+  .then((visit) => {
+      res.status(201).send({ visit });
+  })
+  .catch((err) => {
+      next(err);
+  })
+}
+
 module.exports = {
-  getVisitsByUser
+  getVisitsByUser,
+  addVisit
 };

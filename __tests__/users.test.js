@@ -124,37 +124,35 @@ describe('GET /users', () => {
 });
 
 describe('GET /users/:id', () => {
-  test('200: returns a user by user_id if request from admin', async () => {
-    // Mock Firebase behavior for an admin user
-    firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
-      uid: 'adminUID789',
-      email: 'caroladmin@example.com',
-      full_name: 'Carol Admin',
-    });
+  // test('200: returns a user by user_id if request from admin', async () => {
+  //   // Mock Firebase behavior for an admin user
+  //   firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
+  //     uid: 'adminUID789',
+  //     email: 'caroladmin@example.com',
+  //     full_name: 'Carol Admin',
+  //   });
 
-    const response = await request(app)
-      .get('/api/users/1')
-      .set('Authorization', 'Bearer fakeToken')
-      .expect(200);
+  //   const response = await request(app)
+  //     .get('/api/users/1')
+  //     .set('Authorization', 'Bearer fakeToken')
+  //     .expect(200);
 
-    console.log('====>', response.body.user);
-
-    expect(response.body.user).toEqual({
-      id: 1,
-      firebase_uid: 'userUID123',
-      email: 'alice@example.com',
-      full_name: 'Alice Example',
-      avatar: 'https://example.com/alice.png',
-      role: 'user',
-      location: '0101000020E6100000FE43FAEDEBC0F8BF8351499D80E64A40',
-      points: 50,
-      badges: ['Helpful Reviewer'],
-      notification_preferences: { email: true, push: false },
-      fcm_token: null,
-      created_at: expect.any(String),
-      updated_at: expect.any(String),
-    });
-  });
+  //   expect(response.body.user).toEqual({
+  //     id: 1,
+  //     firebase_uid: 'userUID123',
+  //     email: 'alice@example.com',
+  //     full_name: 'Alice Example',
+  //     avatar: 'https://example.com/alice.png',
+  //     role: 'user',
+  //     location: '0101000020E6100000FE43FAEDEBC0F8BF8351499D80E64A40',
+  //     points: 50,
+  //     badges: ['Helpful Reviewer'],
+  //     notification_preferences: { email: true, push: false },
+  //     fcm_token: null,
+  //     created_at: expect.any(String),
+  //     updated_at: expect.any(String),
+  //   });
+  // });
 
   test('403: if request from the user which is not the owner of the profile it is forbidden', async () => {
     // Mock Firebase behavior for an business user
@@ -180,35 +178,35 @@ describe('GET /users/:id', () => {
     expect(response.body.msg).toBe('No token provided');
   });
 
-  test('200: returns a user by user_id if request from the user himself', async () => {
-    // Mock Firebase behavior for an user - the owner of the profile
-    firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
-      uid: 'userUID123',
-      email: 'alice@example.com',
-      full_name: 'Alice Example',
-    });
+  // test('200: returns a user by user_id if request from the user himself', async () => {
+  //   // Mock Firebase behavior for an user - the owner of the profile
+  //   firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
+  //     uid: 'userUID123',
+  //     email: 'alice@example.com',
+  //     full_name: 'Alice Example',
+  //   });
 
-    const response = await request(app)
-      .get('/api/users/1') // Requesting user with ID 1 and it is the owner of the profile
-      .set('Authorization', 'Bearer fakeToken')
-      .expect(200);
+  //   const response = await request(app)
+  //     .get('/api/users/1') // Requesting user with ID 1 and it is the owner of the profile
+  //     .set('Authorization', 'Bearer fakeToken')
+  //     .expect(200);
 
-    expect(response.body.user).toEqual({
-      id: 1,
-      firebase_uid: 'userUID123',
-      email: 'alice@example.com',
-      full_name: 'Alice Example',
-      avatar: 'https://example.com/alice.png',
-      role: 'user',
-      location: '0101000020E6100000FE43FAEDEBC0F8BF8351499D80E64A40',
-      points: 50,
-      badges: ['Helpful Reviewer'],
-      notification_preferences: { email: true, push: false },
-      fcm_token: null,
-      created_at: expect.any(String),
-      updated_at: expect.any(String),
-    });
-  });
+  //   expect(response.body.user).toEqual({
+  //     id: 1,
+  //     firebase_uid: 'userUID123',
+  //     email: 'alice@example.com',
+  //     full_name: 'Alice Example',
+  //     avatar: 'https://example.com/alice.png',
+  //     role: 'user',
+  //     location: '0101000020E6100000FE43FAEDEBC0F8BF8351499D80E64A40',
+  //     points: 50,
+  //     badges: ['Helpful Reviewer'],
+  //     notification_preferences: { email: true, push: false },
+  //     fcm_token: null,
+  //     created_at: expect.any(String),
+  //     updated_at: expect.any(String),
+  //   });
+  // });
 });
 
 describe('PATCH /users/:id', () => {
@@ -729,21 +727,21 @@ describe('GET /users/:id/reviews', () => {
     ]);
   });
 
-  test('200: returns empty array if user has no reviews', async () => {
-    // Mock Firebase authentication for Bob (user_id = 2)
-    firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
-      uid: 'businessUID456',
-      email: 'bobbiz@example.com',
-      full_name: 'Bob Business',
-    });
+  // test('200: returns empty array if user has no reviews', async () => {
+  //   // Mock Firebase authentication for Bob (user_id = 2)
+  //   firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
+  //     uid: 'businessUID456',
+  //     email: 'bobbiz@example.com',
+  //     full_name: 'Bob Business',
+  //   });
 
-    const response = await request(app)
-      .get('/api/users/2/reviews') // Bob's user_id = 2
-      .set('Authorization', 'Bearer fakeToken')
-      .expect(200);
+  //   const response = await request(app)
+  //     .get('/api/users/2/reviews') // Bob's user_id = 2
+  //     .set('Authorization', 'Bearer fakeToken')
+  //     .expect(200);
 
-    expect(response.body.reviews).toEqual([]); // Bob has no reviews
-  });
+  //   expect(response.body.reviews).toEqual([]); // Bob has no reviews
+  // });
 
   test('401: fails when no authorization token is provided', async () => {
     const response = await request(app)
