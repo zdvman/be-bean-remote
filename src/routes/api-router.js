@@ -8,6 +8,7 @@ const reviewsRouter = require('./reviews-router');
 const cafesRouter = require('./cafes-router');
 const visitsRouter = require('./visits-router');
 const amenitiesRouter = require('./amenities-router');
+const reportsRouter = require('./reports-router');
 const { getApi } = require('./../controllers/api.controller');
 
 apiRouter.route('/').get(getApi);
@@ -16,5 +17,6 @@ apiRouter.use('/reviews', reviewsRouter);
 apiRouter.use('/cafes', cafesRouter);
 apiRouter.use('/visits', visitsRouter);
 apiRouter.use('/amenities', amenitiesRouter);
+apiRouter.use('/reports', reportsRouter);
 
 module.exports = apiRouter;
