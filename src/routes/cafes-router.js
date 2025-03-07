@@ -8,6 +8,11 @@ const {
   getAmenitiesByCafeId,
   postCafe,
 } = require("../controllers/cafes.controllers");
+const {
+  getReviewsByCafeId,
+  addReview,
+  deleteReview
+} = require("../controllers/reviews.controllers");
 const { authMiddleware, restrictTo } = require("../middleware/auth"); // Import both middleware
 
 cafesRouter.route("/").get((req, res, next) => {
@@ -20,5 +25,8 @@ cafesRouter.route("/").get((req, res, next) => {
 cafesRouter.route("/").post(postCafe);
 cafesRouter.route("/:id").get(getCafeByID);
 cafesRouter.route("/:id/amenities").get(getAmenitiesByCafeId);
+cafesRouter.route("/:id/reviews").get(getReviewsByCafeId);
+cafesRouter.route("/:id/reviews").post(addReview);
+cafesRouter.route("/:cafe_id/reviews/:review_id").delete(deleteReview);
 
 module.exports = cafesRouter;
