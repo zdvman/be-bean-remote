@@ -1,4 +1,4 @@
-const db = require("../db/connection");
+const db = require('../db/connection');
 
 function selectCafes() {
   const sql = `SELECT * FROM cafes ORDER BY id ASC`;
@@ -17,7 +17,7 @@ function selectPostCafe(
   is_verified = false
 ) {
   if (!owner_id || !name || !address || !location || !location.coordinates) {
-    return Promise.reject({ msg: "Missing required fields", status: 400 });
+    return Promise.reject({ msg: 'Missing required fields', status: 400 });
   }
 
   const [longitude, latitude] = location.coordinates;
@@ -27,7 +27,7 @@ function selectPostCafe(
   }*/
 
   const locationGeoJson = {
-    type: "Point",
+    type: 'Point',
     coordinates: [longitude, latitude],
   };
 
@@ -93,10 +93,74 @@ function selectAmenitiesByCafeId(id) {
   });
 }
 
+function selectCafesByCoordinates({ minLat, maxLat, minLon, maxLon }) {
+  console.log(minLat, maxLat, minLon, maxLon);
+  const params = [minLon, minLat, maxLon, maxLat].map(Number);
+  if (params.some(isNaN)) {
+    return Promise.reject({
+      status: 400,
+      msg: 'Invalid coordinates',
+    });
+  }
+  const sql = `
+  SELECT 
+    id, 
+    name, 
+    description, 
+    address, 
+    busy_status, 
+    is_verified, 
+    created_at,
+    ST_Y(location::geometry) AS latitude,
+    ST_X(location::geometry) AS longitude
+  FROM cafes
+  WHERE ST_Covers(
+    ST_GeogFromText('POLYGON((' || $1 || ' ' || $2 || ', ' || $3 || ' ' || $2 || ', ' || $3 || ' ' || $4 || ', ' || $1 || ' ' || $4 || ', ' || $1 || ' ' || $2 || '))'),
+    location
+  )
+  `;
+  return db.query(sql, params).then(({ rows }) => {
+    return rows;
+  });
+}
+
+function selectCafesByRadius({ lat, lon, radius }) {
+  const params = [lon, lat, radius].map(Number);
+  if (params.some(isNaN)) {
+    return Promise.reject({
+      status: 400,
+      msg: 'Invalid coordinates',
+    });
+  }
+  const sql = `
+  SELECT 
+    id, 
+    name, 
+    description, 
+    address, 
+    busy_status, 
+    is_verified, 
+    created_at,
+    ST_Y(location::geometry) AS latitude,
+    ST_X(location::geometry) AS longitude
+  FROM cafes
+  WHERE ST_DWithin(
+    ST_GeogFromText('POINT(' || $1 || ' ' || $2 || ')'),
+    location,
+    $3
+  )
+  `;
+  return db.query(sql, params).then(({ rows }) => {
+    return rows;
+  });
+}
+
 module.exports = {
   selectCafes,
   selectCafeByID,
   selectCafesByAmenity,
   selectAmenitiesByCafeId,
   selectPostCafe,
+  selectCafesByCoordinates,
+  selectCafesByRadius,
 };

@@ -4,7 +4,9 @@ const {
   selectCafesByAmenity,
   selectAmenitiesByCafeId,
   selectPostCafe,
-} = require("../models/cafes.models");
+  selectCafesByCoordinates,
+  selectCafesByRadius,
+} = require('../models/cafes.models');
 
 function getCafes(req, res, next) {
   return selectCafes()
@@ -28,7 +30,7 @@ function getCafesByAmenity(req, res, next) {
   return selectCafesByAmenity(amenity)
     .then((cafes) => {
       if (cafes.length === 0) {
-        return res.status(404).send({ msg: "No cafes with this amenity" });
+        return res.status(404).send({ msg: 'No cafes with this amenity' });
       }
       res.status(200).json({ cafes });
     })
@@ -73,10 +75,28 @@ function postCafe(req, res, next) {
     .catch(next);
 }
 
+function getCafesByCoordinates(req, res, next) {
+  return selectCafesByCoordinates(req?.query)
+    .then((cafes) => {
+      res.status(200).send({ cafes });
+    })
+    .catch(next);
+}
+
+function getCafesByRadius(req, res, next) {
+  return selectCafesByRadius(req?.query)
+    .then((cafes) => {
+      res.status(200).send({ cafes });
+    })
+    .catch(next);
+}
+
 module.exports = {
   getCafes,
   getCafeByID,
   getCafesByAmenity,
   getAmenitiesByCafeId,
   postCafe,
+  getCafesByCoordinates,
+  getCafesByRadius,
 };
