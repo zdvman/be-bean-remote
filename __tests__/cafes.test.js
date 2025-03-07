@@ -18,6 +18,9 @@ const seed = require('../src/db/seeds/seed.js');
 require('jest-sorted');
 
 describe('GET /cafes', () => {
+  beforeAll(async () => {
+    await seed(testData);
+  });
   test('200: Responds with an object containing all cafes', () => {
     return request(app)
       .get('/api/cafes')
@@ -75,9 +78,46 @@ describe('GET /cafes/:cafe_id', () => {
   });
 });
 
-describe('GET /api/cafes sorting queries', () => {
-  test('200: Responds with all cafes with a certain amenity', () => {
-    return request(app)
+  describe('GET /cafes/:cafe_id', () => {
+  
+    test("200: Responds with a single cafe", () => {
+      return request(app)
+        .get("/api/cafes/1")
+        .expect(200)
+        .then((response) => {
+          const cafe = response.body.cafe;
+          expect(cafe.owner_id).toBe(2);
+          expect(cafe.name).toBe('Remote Bean Central');
+          expect(cafe.description).toBe("A cozy cafe for remote workers");
+          expect(cafe.address).toBe("123 Coffee St, Manchester");
+          expect(cafe.busy_status).toBe("quiet");
+          expect(cafe.is_verified).toBe(false);
+        });
+    });
+  
+    test("GET:404 sends an appropriate status and error message when given a valid but non-existent id", () => {
+      return request(app)
+        .get("/api/cafes/999")
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe("No cafe found for cafe_id: 999");
+        });
+    });
+    test("GET:400 sends an appropriate status and error message when given an invalid id", () => {
+      return request(app)
+        .get("/api/cafes/not-a-cafe")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
+        });
+    });
+  });
+  
+    
+  
+  describe("GET /api/cafes sorting queries",() => {
+    test("200: Responds with all cafes with a certain amenity", () => {
+      return request(app)
       .get('/api/cafes?amenity=WiFi')
       .expect(200)
       .then(({ body }) => {
