@@ -21,6 +21,13 @@ exports.createTables = (db) => {
           `
       )
 
+      // ---- ADD GIST INDEX ON users.location ----
+      .then(() => {
+        return db.query(`
+            CREATE INDEX idx_users_location ON users USING GIST (location);
+          `);
+      })
+
       // ---- CAFES ----
       .then(() => {
         return db.query(`
@@ -36,6 +43,13 @@ exports.createTables = (db) => {
               is_verified BOOLEAN DEFAULT FALSE, -- Admin verification
               created_at TIMESTAMP DEFAULT NOW()
             );
+          `);
+      })
+
+      // ---- ADD GIST INDEX ON cafes.location ----
+      .then(() => {
+        return db.query(`
+            CREATE INDEX idx_cafes_location ON cafes USING GIST (location);
           `);
       })
 
