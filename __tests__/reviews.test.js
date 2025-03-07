@@ -55,7 +55,7 @@ jest.mock('firebase-admin', () => ({
           .get("/api/cafes/not-a-cafe/reviews")
           .expect(400)
           .then((response) => {
-            expect(response.body.msg).toBe("Bad request");
+            expect(response.body.msg).toBe('Bad request : invalid input syntax for type integer: \"not-a-cafe\"');
           });
       });
       test("GET:404 sends an appropriate status and error message when given a cafe with no reviews", () => {
@@ -101,7 +101,7 @@ jest.mock('firebase-admin', () => ({
           }) // Missing user_id
         .expect(400)
         .then((res) => {
-          expect(res.body.msg).toBe("Bad request");
+          expect(res.body.msg).toBe('Bad request : null value in column \"user_id\" of relation \"reviews\" violates not-null constraint');
         });
     });
     
@@ -115,7 +115,7 @@ jest.mock('firebase-admin', () => ({
           }) // Non-existent user
         .expect(404)
         .then((res) => {
-          expect(res.body.msg).toBe("Not found");
+          expect(res.body.msg).toBe('Not found : insert or update on table \"reviews\" violates foreign key constraint \"reviews_user_id_fkey\"');
         });
     });
     
@@ -129,7 +129,7 @@ jest.mock('firebase-admin', () => ({
           }) // Non-existent cafe
         .expect(404)
         .then((res) => {
-          expect(res.body.msg).toBe("Not found");
+          expect(res.body.msg).toBe('Not found : insert or update on table \"reviews\" violates foreign key constraint \"reviews_cafe_id_fkey\"');
         });
     });
     test("400: responds with an error if user_id is not an integer", () => {
@@ -142,7 +142,7 @@ jest.mock('firebase-admin', () => ({
           }) // Invalid user_id
         .expect(400)
         .then((res) => {
-          expect(res.body.msg).toBe("Bad request");
+          expect(res.body.msg).toBe('Bad request : invalid input syntax for type integer: \"abc\"');
         });
     });
     
@@ -156,7 +156,7 @@ jest.mock('firebase-admin', () => ({
           }) // Invalid cafe_id
         .expect(400)
         .then((res) => {
-          expect(res.body.msg).toBe("Bad request");
+          expect(res.body.msg).toBe('Bad request : invalid input syntax for type integer: \"abc\"');
         });
     });   
   })
