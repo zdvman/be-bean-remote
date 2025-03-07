@@ -108,7 +108,7 @@ describe('GET /cafes/:cafe_id', () => {
         .get("/api/cafes/not-a-cafe")
         .expect(400)
         .then((response) => {
-          expect(response.body.msg).toBe("Bad request");
+          expect(response.body.msg).toBe('Bad request : invalid input syntax for type integer: \"not-a-cafe\"');
         });
     });
   });
