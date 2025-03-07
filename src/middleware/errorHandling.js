@@ -56,14 +56,17 @@ exports.handlePSQLErrors = (err, req, res, next) => {
   // NOT NULL constraint violation - missing required field
   if (err.code === '22P02' || err.code === '22003' || err.code === '23502') {
     res.status(400).send({
-      msg: 'Bad request',
-      error: err.message.split('\n')[0],
+      msg: `${
+        'Bad request' +
+        (err?.message ? ' : ' + err?.message?.split('\n')[0] : '')
+      }`,
     });
   } else if (err.code === '23503') {
     // Foreign key constraint violation
     res.status(404).send({
-      msg: 'Not found',
-      error: err.message.split('\n')[0],
+      msg: `${
+        'Not found' + (err?.message ? ' : ' + err?.message?.split('\n')[0] : '')
+      }`,
     });
   } else {
     next(err);

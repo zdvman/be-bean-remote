@@ -160,33 +160,5 @@ jest.mock('firebase-admin', () => ({
         });
     });   
   })
-//   describe("/api/cafes/:cafe_id/reviews/:review_id", () => {
-//     test("DELETE: 204 return no content", () => {
-//       return request(app)
-//       .delete("/api/cafes/1/reviews/1")
-//       .expect(204)
-//       .then((res) => {
-//         expect(res.body).toEqual({
-//             "msg": "Review with ID 1 for cafe 1 has been deleted."
-//           })
-//       });
-//     })
-//     test('DELETE:404 sends an appropriate status and error message when given a valid but non-existent id', () => {
-//       return request(app)
-//         .delete('/api/cafes/:cafe_id/reviews/:review_id')
-//         .expect(404)
-//         .then((response) => {
-//           expect(response.body.msg).toBe('No comment found for cafe_id: 999');
-//         });
-//     });
-//     test('DELETE:400 sends an appropriate status and error message when given an invalid id', () => {
-//       return request(app)
-//         .delete('/api/cafes/:cafe_id/reviews/:review_id')
-//         .expect(400)
-//         .then((response) => {
-//           expect(response.body.msg).toBe('Bad Request');
-//         });
-//     });
-//   })
 
   
