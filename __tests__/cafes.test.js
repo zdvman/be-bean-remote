@@ -17,7 +17,14 @@ jest.mock('firebase-admin', () => ({
   const seed = require('../src/db/seeds/seed.js');
   require('jest-sorted');
 
+  afterAll(async () => {
+    await db.end();
+  });
+
   describe("GET /cafes", () => {
+    beforeAll(async () => {
+      await seed(testData);
+    });
     test("200: Responds with an object containing all cafes", () => {
       return request(app)
         .get("/api/cafes")

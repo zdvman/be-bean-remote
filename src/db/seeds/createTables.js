@@ -89,10 +89,10 @@ exports.createTables = (db) => {
         return db.query(`
             CREATE TABLE reviews (
               id SERIAL PRIMARY KEY,
-              user_id INT REFERENCES users(id) ON DELETE CASCADE,
-              cafe_id INT REFERENCES cafes(id) ON DELETE CASCADE,
+              user_id INT REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+              cafe_id INT REFERENCES cafes(id) ON DELETE CASCADE NOT NULL,
               rating INT CHECK (rating BETWEEN 1 AND 5),
-              review_text TEXT,
+              review_text TEXT NOT NULL,
               helpful_count INT DEFAULT 0,
               created_at TIMESTAMP DEFAULT NOW()
             );
