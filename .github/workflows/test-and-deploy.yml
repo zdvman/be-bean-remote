@@ -40,6 +40,7 @@ jobs:
           PGDATABASE: 'bean_remote_test'
           PGUSER: 'zdvman'
           PGPASSWORD: ${{ secrets.PGPASSWORD }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: npm test
 
   deploy:
