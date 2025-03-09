@@ -17,51 +17,33 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      # 1. Check out your code
       - name: Checkout Repo
         uses: actions/checkout@v4
 
-      # 2. Use Node.js
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      # 3. Install PostgreSQL and PostGIS
-      - name: Install PostgreSQL & PostGIS
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y postgresql postgresql-contrib postgis
+      - name: Start PostgreSQL
+        uses: harmon758/postgresql-action@v1
+        with:
+          postgresql version: '15'
+          postgresql db: beanRemote_test
+          postgresql user: zdvman
+          postgresql password: ${{ secrets.PGPASSWORD }}
+          postgresql extensions: postgis
 
-          # Switch "peer" -> "md5" in pg_hba.conf 
-          sudo sed -i "s/peer/md5/g" /etc/postgresql/*/main/pg_hba.conf
-
-          # Start & enable PostgreSQL with updated config
-          sudo systemctl restart postgresql
-          sudo systemctl enable postgresql
-
-          # Create user with a password
-          sudo -u postgres psql -c "CREATE USER zdvman WITH PASSWORD '${{ secrets.PGPASSWORD }}';"
-
-          # Create your test database, owned by that user
-          sudo -u postgres psql -c "CREATE DATABASE bean_remote_test OWNER zdvman;"
-
-          # Enable PostGIS in the test database (use that password you just set)
-          PGPASSWORD=${{ secrets.PGPASSWORD }} psql -U zdvman -d bean_remote_test -c "CREATE EXTENSION IF NOT EXISTS postgis;"
-          PGPASSWORD=${{ secrets.PGPASSWORD }} psql -U zdvman -d bean_remote_test -c "SELECT PostGIS_Version();"
-
-      # 4. Install Node dependencies
       - name: Install dependencies
         run: npm ci
 
-      # 5. Run tests
       - name: Run Tests
         env:
-          PGDATABASE: bean_remote_test
+          PGDATABASE: beanRemote_test
           PGUSER: zdvman
           PGPASSWORD: ${{ secrets.PGPASSWORD }}
           PGPORT: 5432
-          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          FIREBASE_SERVICES_ACCOUNTS: ${{ secrets.FIREBASE_SERVICES_ACCOUNTS }}
         run: npm test
 
   deploy:
