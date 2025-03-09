@@ -1,7 +1,7 @@
 // users.js
 module.exports = [
   {
-    firebase_uid: 'userUID123',
+    firebase_uid: '0aC1ZV5faTQ7WCajzbKzbDjSXKu2',
     email: 'alice@example.com',
     full_name: 'Alice Example',
     avatar: 'https://example.com/alice.png',
@@ -16,7 +16,7 @@ module.exports = [
     fcm_token: null,
   },
   {
-    firebase_uid: 'businessUID456',
+    firebase_uid: 'SukWuqu9AwTjdCBogqp4qR5rM3o2',
     email: 'bobbiz@example.com',
     full_name: 'Bob Business',
     avatar: 'https://example.com/bob.png',
@@ -31,7 +31,7 @@ module.exports = [
     fcm_token: null,
   },
   {
-    firebase_uid: 'adminUID789',
+    firebase_uid: 'nNlwVn19geXskitAtW0E2MtObZG2',
     email: 'caroladmin@example.com',
     full_name: 'Carol Admin',
     avatar: 'https://example.com/carol.png',
@@ -46,7 +46,7 @@ module.exports = [
     fcm_token: null,
   },
   {
-    firebase_uid: 'userUID456',
+    firebase_uid: 'RA7AmRSO2TTHPk5ueT9wEIjHMcr2',
     email: 'dave@example.com',
     full_name: 'Dave Developer',
     avatar: 'https://example.com/dave.png',
@@ -61,7 +61,7 @@ module.exports = [
     fcm_token: 'token123',
   },
   {
-    firebase_uid: 'businessUID789',
+    firebase_uid: '2XJfq7MX2KbBxwcjU3gnejc4mGn1',
     email: 'evebiz@example.com',
     full_name: 'Eve Entrepreneur',
     avatar: 'https://example.com/eve.png',
@@ -76,7 +76,7 @@ module.exports = [
     fcm_token: null,
   },
   {
-    firebase_uid: 'adminUID012',
+    firebase_uid: '3nSP4kGpC4RT7PksYic0W9tKatz1',
     email: 'frankadmin@example.com',
     full_name: 'Frank Admin',
     avatar: 'https://example.com/frank.png',
