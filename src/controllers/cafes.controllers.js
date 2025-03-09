@@ -1,9 +1,9 @@
 const {
   selectCafes,
-  selectCafeByID,
+  selectCafeByCafeId,
   selectCafesByAmenity,
   selectAmenitiesByCafeId,
-  selectPostCafe,
+  insertCafe,
   selectCafesByCoordinates,
   selectCafesByRadius,
 } = require('../models/cafes.models');
@@ -16,9 +16,8 @@ function getCafes(req, res, next) {
     .catch(next);
 }
 
-function getCafeByID(req, res, next) {
-  const { id } = req.params;
-  return selectCafeByID(id)
+function getCafeByCafeId(req, res, next) {
+  return selectCafeByCafeId(req?.params)
     .then((cafe) => {
       res.status(200).send({ cafe });
     })
@@ -26,49 +25,23 @@ function getCafeByID(req, res, next) {
 }
 
 function getCafesByAmenity(req, res, next) {
-  const amenity = req.query.amenity;
-  return selectCafesByAmenity(amenity)
+  return selectCafesByAmenity(req?.query)
     .then((cafes) => {
-      if (cafes.length === 0) {
-        return res.status(404).send({ msg: 'No cafes with this amenity' });
-      }
       res.status(200).json({ cafes });
     })
     .catch(next);
 }
 
 function getAmenitiesByCafeId(req, res, next) {
-  const { id } = req.params;
-  selectCafeByID(id)
-    .then(() => {
-      return selectAmenitiesByCafeId(id);
-    })
+  return selectAmenitiesByCafeId(req?.params)
     .then((amenities) => {
-      const cafe_id = id;
-      res.status(200).send({ cafe_id, amenities });
+      res.status(200).send({ amenities });
     })
     .catch(next);
 }
 
 function postCafe(req, res, next) {
-  const {
-    owner_id,
-    name,
-    description,
-    address,
-    location,
-    busy_status,
-    is_verified,
-  } = req.body;
-  return selectPostCafe(
-    owner_id,
-    name,
-    description,
-    address,
-    location,
-    busy_status,
-    is_verified
-  )
+  return insertCafe(req?.body, req?.user?.dbUser)
     .then((cafes) => {
       res.status(201).send({ cafes });
     })
@@ -93,7 +66,7 @@ function getCafesByRadius(req, res, next) {
 
 module.exports = {
   getCafes,
-  getCafeByID,
+  getCafeByCafeId,
   getCafesByAmenity,
   getAmenitiesByCafeId,
   postCafe,

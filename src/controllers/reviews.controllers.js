@@ -1,75 +1,87 @@
 const {
   selectReviewsByCafeId,
-  selectReviewsById,
+  selectReviewByReviewId,
   selectVotesByReviewId,
   insertReview,
-  removeReview
-} = require("../models/reviews.model");
-const { checkCafeExists } = require('../db/seeds/utils.js');
+  removeReview,
+  handleVote,
+  countVotesByType,
+  selectReviewVoteByUserOnReview,
+} = require('../models/reviews.model');
 
 const getReviewsByCafeId = (req, res, next) => {
-  const { id } = req.params;
-  return checkCafeExists( id )
-    .then(() => {
-      return selectReviewsByCafeId(req.params)
-    })
+  return selectReviewsByCafeId(req?.params)
     .then((reviews) => {
       res.status(200).send({ reviews });
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch(next);
 };
 
-const getReviewsById = (req, res, next) => {
-  selectReviewsById(req?.params)
+const getReviewByReviewId = (req, res, next) => {
+  selectReviewByReviewId(req?.params)
     .then((reviews) => {
       res.status(200).send({ reviews });
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch(next);
 };
 
-const getVoteByReviewId = (req, res, next) => {
+const getVotesByReviewId = (req, res, next) => {
   selectVotesByReviewId(req?.params)
     .then((votes) => {
       res.status(200).send({ votes });
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch(next);
 };
 
 const addReview = (req, res, next) => {
-  const newReview = req.body;
-  const { id } = req.params;
-  return insertReview(newReview, id)
-  .then((review) => {
+  return insertReview(req?.params, req?.body, req?.user?.dbUser)
+    .then((review) => {
       res.status(201).send({ review });
-  })
-  .catch((err) => {
-      next(err);
-  })
-}
+    })
+    .catch(next);
+};
 
 const deleteReview = (req, res, next) => {
-  const { cafe_id, review_id } = req.params;
-  return removeReview(review_id)
-  .then(() => {
-      res.status(204).send({
-        "msg": `Review with ID ${review_id} for cafe ${cafe_id} has been deleted.`
-      });
-  })
-  .catch((err) => {
-      next(err);
-  })
+  return removeReview(req?.params)
+    .then(() => {
+      res.status(204).send();
+    })
+    .catch(next);
+};
+
+// Handling votes on reviews
+
+function voteController(req, res, next) {
+  return handleVote(req?.params, req?.user?.dbUser, req?.query)
+    .then((result) => {
+      res.status(200).send(result);
+    })
+    .catch(next);
+}
+
+function getVoteCount(req, res, next) {
+  return countVotesByType(req?.params, req?.query)
+    .then((count) => {
+      res.status(200).send({ count });
+    })
+    .catch(next);
+}
+
+function getCurrentVoteType(req, res, next) {
+  return selectReviewVoteByUserOnReview(req?.user?.dbUser, req?.params)
+    .then((vote_type) => {
+      res.status(200).send({ vote_type });
+    })
+    .catch(next);
 }
 
 module.exports = {
   getReviewsByCafeId,
-  getReviewsById,
-  getVoteByReviewId,
+  getReviewByReviewId,
+  getVotesByReviewId,
   addReview,
-  deleteReview
+  deleteReview,
+  getVoteCount,
+  getCurrentVoteType,
+  voteController,
 };
