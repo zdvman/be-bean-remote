@@ -1,6 +1,12 @@
 // src/config/firebase.js
 const admin = require('firebase-admin');
-const serviceAccount = require('./bean-remote-firebase-adminsdk-fbsvc-021c1a2439.json');
+const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT;
+
+if (!serviceAccountJson) {
+  throw new Error('Missing FIREBASE_SERVICE_ACCOUNT env var');
+}
+
+const serviceAccount = JSON.parse(serviceAccountJson);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
