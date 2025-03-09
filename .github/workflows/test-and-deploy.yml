@@ -17,48 +17,47 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      # 1. Check out your repo
+      # 1. Check out your code
       - name: Checkout Repo
         uses: actions/checkout@v4
 
-      # 2. Use Node.js 18
+      # 2. Use Node.js
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      # 3. Install PostgreSQL & PostGIS locally (no container)
-      - name: Setup PostgreSQL & PostGIS
+      # 3. Install PostgreSQL and PostGIS locally
+      - name: Install PostgreSQL & PostGIS
         run: |
           sudo apt-get update
           sudo apt-get install -y postgresql postgresql-contrib postgis
-
-          # Start & enable the PostgreSQL service
+          # Start the Postgres service
           sudo systemctl start postgresql
           sudo systemctl enable postgresql
 
-          # Create a new user with the same credentials you use in your tests
+          # Create a user with the same credentials as in your tests
           sudo -u postgres psql -c "CREATE USER zdvman WITH PASSWORD '${{ secrets.PGPASSWORD }}';"
 
-          # Create the test database owned by that user
+          # Create your test database, owned by that user
           sudo -u postgres psql -c "CREATE DATABASE bean_remote_test OWNER zdvman;"
 
-          # Enable PostGIS in the test database
+          # Enable PostGIS extension on the test database
           PGPASSWORD=${{ secrets.PGPASSWORD }} psql -U zdvman -d bean_remote_test -c "CREATE EXTENSION IF NOT EXISTS postgis;"
           # Optional: show PostGIS version
           PGPASSWORD=${{ secrets.PGPASSWORD }} psql -U zdvman -d bean_remote_test -c "SELECT PostGIS_Version();"
 
-      # 4. Install dependencies (uses package-lock.json or yarn.lock if present)
+      # 4. Install Node dependencies
       - name: Install dependencies
         run: npm ci
 
-      # 5. Run your tests
+      # 5. Run tests
       - name: Run Tests
         env:
-          PGDATABASE: bean_remote_test
-          PGUSER: zdvman
-          PGPORT: 5432
+          PGDATABASE: 'bean_remote_test'
+          PGUSER: 'zdvman'
           PGPASSWORD: ${{ secrets.PGPASSWORD }}
+          PGPORT: '5432'
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: npm test
 
