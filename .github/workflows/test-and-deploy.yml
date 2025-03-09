@@ -28,7 +28,7 @@ jobs:
       - name: Setup PostgreSQL
         uses: harmon758/postgresql-action@v1
         with:
-          postgresql db: 'nc_news_test'
+          postgresql db: 'bean_remote_test'
           postgresql user: 'zdvman'
           postgresql password: ${{ secrets.PGPASSWORD }}
 
@@ -37,7 +37,7 @@ jobs:
 
       - name: Run Tests
         env:
-          PGDATABASE: 'nc_news_test'
+          PGDATABASE: 'bean_remote_test'
           PGUSER: 'zdvman'
           PGPASSWORD: ${{ secrets.PGPASSWORD }}
         run: npm test
