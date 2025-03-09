@@ -29,6 +29,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y postgresql postgresql-contrib postgis
+          sudo systemctl start postgresql
+          sudo systemctl enable postgresql
 
       - name: Setup PostgreSQL
         uses: harmon758/postgresql-action@v1
@@ -36,11 +38,17 @@ jobs:
           postgresql db: 'bean_remote_test'
           postgresql user: 'zdvman'
           postgresql password: ${{ secrets.PGPASSWORD }}
+          postgresql version: 'latest'
+
+      - name: Verify PostgreSQL is Running
+        run: |
+          sudo systemctl status postgresql
+          psql -U postgres -c "SELECT version();"
 
       - name: Enable PostGIS Extension
         run: |
-          psql -U $PGUSER -d $PGDATABASE -c "CREATE EXTENSION IF NOT EXISTS postgis;"
-          psql -U $PGUSER -d $PGDATABASE -c "SELECT PostGIS_Version();"
+          PGPASSWORD=${{ secrets.PGPASSWORD }} psql -U $PGUSER -d $PGDATABASE -c "CREATE EXTENSION IF NOT EXISTS postgis;"
+          PGPASSWORD=${{ secrets.PGPASSWORD }} psql -U $PGUSER -d $PGDATABASE -c "SELECT PostGIS_Version();"
 
       - name: Install dependencies
         run: npm ci
