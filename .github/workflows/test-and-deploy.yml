@@ -43,7 +43,7 @@ jobs:
           PGUSER: zdvman
           PGPASSWORD: ${{ secrets.PGPASSWORD }}
           PGPORT: 5432
-          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNTS }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: npm test
 
   deploy:
