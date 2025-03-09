@@ -27,24 +27,27 @@ jobs:
         with:
           node-version: 18
 
-      # 3. Install PostgreSQL and PostGIS locally
+      # 3. Install PostgreSQL and PostGIS
       - name: Install PostgreSQL & PostGIS
         run: |
           sudo apt-get update
           sudo apt-get install -y postgresql postgresql-contrib postgis
-          # Start the Postgres service
-          sudo systemctl start postgresql
+
+          # Switch "peer" -> "md5" in pg_hba.conf 
+          sudo sed -i "s/peer/md5/g" /etc/postgresql/*/main/pg_hba.conf
+
+          # Start & enable PostgreSQL with updated config
+          sudo systemctl restart postgresql
           sudo systemctl enable postgresql
 
-          # Create a user with the same credentials as in your tests
+          # Create user with a password
           sudo -u postgres psql -c "CREATE USER zdvman WITH PASSWORD '${{ secrets.PGPASSWORD }}';"
 
           # Create your test database, owned by that user
           sudo -u postgres psql -c "CREATE DATABASE bean_remote_test OWNER zdvman;"
 
-          # Enable PostGIS extension on the test database
+          # Enable PostGIS in the test database (use that password you just set)
           PGPASSWORD=${{ secrets.PGPASSWORD }} psql -U zdvman -d bean_remote_test -c "CREATE EXTENSION IF NOT EXISTS postgis;"
-          # Optional: show PostGIS version
           PGPASSWORD=${{ secrets.PGPASSWORD }} psql -U zdvman -d bean_remote_test -c "SELECT PostGIS_Version();"
 
       # 4. Install Node dependencies
@@ -54,10 +57,10 @@ jobs:
       # 5. Run tests
       - name: Run Tests
         env:
-          PGDATABASE: 'bean_remote_test'
-          PGUSER: 'zdvman'
+          PGDATABASE: bean_remote_test
+          PGUSER: zdvman
           PGPASSWORD: ${{ secrets.PGPASSWORD }}
-          PGPORT: '5432'
+          PGPORT: 5432
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: npm test
 
