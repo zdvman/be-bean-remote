@@ -25,10 +25,10 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install PostgreSQL with PostGIS
+      - name: Install PostgreSQL and PostGIS
         run: |
           sudo apt-get update
-          sudo apt-get install -y postgis postgresql-14-postgis-3
+          sudo apt-get install -y postgresql postgresql-contrib postgis
 
       - name: Setup PostgreSQL
         uses: harmon758/postgresql-action@v1
@@ -40,6 +40,7 @@ jobs:
       - name: Enable PostGIS Extension
         run: |
           psql -U $PGUSER -d $PGDATABASE -c "CREATE EXTENSION IF NOT EXISTS postgis;"
+          psql -U $PGUSER -d $PGDATABASE -c "SELECT PostGIS_Version();"
 
       - name: Install dependencies
         run: npm ci
