@@ -3,7 +3,7 @@ const express = require('express');
 const cafesRouter = express.Router();
 const {
   getCafes,
-  getCafeByID,
+  getCafeByCafeId,
   getCafesByAmenity,
   getAmenitiesByCafeId,
   postCafe,
@@ -13,9 +13,12 @@ const {
 const {
   getReviewsByCafeId,
   addReview,
-  deleteReview
-} = require("../controllers/reviews.controllers");
-const { authMiddleware, restrictTo } = require('../middleware/auth'); // Import both middleware
+} = require('../controllers/reviews.controllers');
+const {
+  authMiddleware,
+  restrictTo,
+  allowToUserOrAdmin,
+} = require('../middleware/auth'); // Import both middleware
 
 cafesRouter.route('/').get((req, res, next) => {
   if (req.query.amenity) {
@@ -24,13 +27,12 @@ cafesRouter.route('/').get((req, res, next) => {
     getCafes(req, res, next);
   }
 });
-cafesRouter.route('/').post(postCafe);
-cafesRouter.route('/:id').get(getCafeByID);
-cafesRouter.route('/:id/amenities').get(getAmenitiesByCafeId);
+cafesRouter.route('/').post(authMiddleware, postCafe);
+cafesRouter.route('/:cafe_id').get(getCafeByCafeId);
+cafesRouter.route('/:cafe_id/amenities').get(getAmenitiesByCafeId);
 cafesRouter.route('/map/visible').get(getCafesByCoordinates);
 cafesRouter.route('/map/radius').get(getCafesByRadius);
-cafesRouter.route("/:id/reviews").get(getReviewsByCafeId);
-cafesRouter.route("/:id/reviews").post(addReview);
-cafesRouter.route("/:cafe_id/reviews/:review_id").delete(deleteReview);
+cafesRouter.route('/:cafe_id/reviews').get(getReviewsByCafeId);
+cafesRouter.route('/:cafe_id/reviews').post(authMiddleware, addReview);
 
 module.exports = cafesRouter;

@@ -123,7 +123,7 @@ describe('GET /users', () => {
   });
 });
 
-describe('GET /users/:id', () => {
+describe('GET /users/:user_id', () => {
   test('200: returns a user by user_id if request from admin', async () => {
     // Mock Firebase behavior for an admin user
     firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
@@ -209,7 +209,7 @@ describe('GET /users/:id', () => {
   });
 });
 
-describe('PATCH /users/:id', () => {
+describe('PATCH /users/:user_id', () => {
   test('200: updates full_name and returns updated user', async () => {
     // Mock Firebase behavior for the user
     firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
@@ -326,7 +326,7 @@ describe('PATCH /users/:id', () => {
   });
 });
 
-describe('PATCH /users/:id/amenities', () => {
+describe('PATCH /users/:user_id/amenities', () => {
   test('200: updates user amenities by the user (owner of the profile)', async () => {
     firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
       uid: 'userUID123',
@@ -412,7 +412,7 @@ describe('PATCH /users/:id/amenities', () => {
   });
 });
 
-describe('DELETE /users/:id', () => {
+describe('DELETE /users/:user_id', () => {
   beforeEach(async () => {
     await seed(testData);
   });
@@ -473,7 +473,7 @@ describe('DELETE /users/:id', () => {
   });
 });
 
-describe('GET /users/:id/favourites', () => {
+describe('GET /users/:user_id/favourites', () => {
   test('200: returns list of favorite cafes for a given user', async () => {
     // Mock Firebase behavior for an authenticated user (Alice - userUID123)
     firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
@@ -561,7 +561,7 @@ describe('GET /users/:id/favourites', () => {
   });
 });
 
-describe('POST /users/:id/favourites', () => {
+describe('POST /users/:user_id/favourites', () => {
   test('201: adds a cafe to favorites and returns full cafe details', async () => {
     firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
       uid: 'userUID123',
@@ -683,7 +683,7 @@ describe('POST /users/:id/favourites', () => {
   });
 });
 
-describe('GET /users/:id/reviews', () => {
+describe('GET /users/:user_id/reviews', () => {
   test('200: returns all reviews written by the user', async () => {
     // Mock Firebase authentication for Alice (user_id = 1)
     firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
@@ -784,7 +784,7 @@ describe('GET /users/:id/reviews', () => {
   });
 });
 
-describe('DELETE /api/users/:id/reviews/:review_id', () => {
+describe('DELETE /api/users/:user_id/reviews/:review_id', () => {
   test('204: deletes a review if the user owns it', async () => {
     firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
       uid: 'userUID123', // Alice
