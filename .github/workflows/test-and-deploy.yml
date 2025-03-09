@@ -29,7 +29,7 @@ jobs:
         uses: harmon758/postgresql-action@v1
         with:
           postgresql version: '15'
-          postgresql db: beanRemote_test
+          postgresql db: bean_remote_test
           postgresql user: zdvman
           postgresql password: ${{ secrets.PGPASSWORD }}
           postgresql extensions: postgis
@@ -39,11 +39,11 @@ jobs:
 
       - name: Run Tests
         env:
-          PGDATABASE: beanRemote_test
+          PGDATABASE: bean_remote_test
           PGUSER: zdvman
           PGPASSWORD: ${{ secrets.PGPASSWORD }}
           PGPORT: 5432
-          FIREBASE_SERVICES_ACCOUNTS: ${{ secrets.FIREBASE_SERVICES_ACCOUNTS }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNTS }}
         run: npm test
 
   deploy:
