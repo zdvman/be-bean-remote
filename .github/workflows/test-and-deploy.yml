@@ -17,46 +17,47 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
+      # 1. Check out your repo
       - name: Checkout Repo
         uses: actions/checkout@v4
 
+      # 2. Use Node.js 18
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - name: Install PostgreSQL and PostGIS
+      # 3. Install PostgreSQL & PostGIS locally (no container)
+      - name: Setup PostgreSQL & PostGIS
         run: |
           sudo apt-get update
           sudo apt-get install -y postgresql postgresql-contrib postgis
+
+          # Start & enable the PostgreSQL service
           sudo systemctl start postgresql
           sudo systemctl enable postgresql
 
-      - name: Setup PostgreSQL
-        uses: harmon758/postgresql-action@v1
-        with:
-          postgresql db: 'bean_remote_test'
-          postgresql user: 'zdvman'
-          postgresql password: ${{ secrets.PGPASSWORD }}
-          postgresql version: 'latest'
+          # Create a new user with the same credentials you use in your tests
+          sudo -u postgres psql -c "CREATE USER zdvman WITH PASSWORD '${{ secrets.PGPASSWORD }}';"
 
-      - name: Verify PostgreSQL is Running
-        run: |
-          sudo systemctl status postgresql
-          psql -U postgres -c "SELECT version();"
+          # Create the test database owned by that user
+          sudo -u postgres psql -c "CREATE DATABASE bean_remote_test OWNER zdvman;"
 
-      - name: Enable PostGIS Extension
-        run: |
-          PGPASSWORD=${{ secrets.PGPASSWORD }} psql -U $PGUSER -d $PGDATABASE -c "CREATE EXTENSION IF NOT EXISTS postgis;"
-          PGPASSWORD=${{ secrets.PGPASSWORD }} psql -U $PGUSER -d $PGDATABASE -c "SELECT PostGIS_Version();"
+          # Enable PostGIS in the test database
+          PGPASSWORD=${{ secrets.PGPASSWORD }} psql -U zdvman -d bean_remote_test -c "CREATE EXTENSION IF NOT EXISTS postgis;"
+          # Optional: show PostGIS version
+          PGPASSWORD=${{ secrets.PGPASSWORD }} psql -U zdvman -d bean_remote_test -c "SELECT PostGIS_Version();"
 
+      # 4. Install dependencies (uses package-lock.json or yarn.lock if present)
       - name: Install dependencies
         run: npm ci
 
+      # 5. Run your tests
       - name: Run Tests
         env:
-          PGDATABASE: 'bean_remote_test'
-          PGUSER: 'zdvman'
+          PGDATABASE: bean_remote_test
+          PGUSER: zdvman
+          PGPORT: 5432
           PGPASSWORD: ${{ secrets.PGPASSWORD }}
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: npm test
