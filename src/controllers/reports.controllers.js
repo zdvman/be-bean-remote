@@ -15,7 +15,6 @@ function getReports(req, res, next) {
 }
 
 function postReport(req, res, next) {
-  console.log(req.body);
   return insertReport(req?.body)
     .then((report) => {
       res.status(201).send({ report });

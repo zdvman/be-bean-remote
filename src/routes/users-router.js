@@ -20,6 +20,7 @@ const {
   authMiddleware,
   restrictTo,
   allowToUserOrAdmin,
+  allowToFirebaseUserOrAdmin,
 } = require('../middleware/auth'); // Import both middleware
 
 // Protected route: Get all users (requires authentication, restrict to admins only)
@@ -37,8 +38,8 @@ usersRouter
 
 // Protected route: Get user by Firebase UID (requires authentication, restricts to user (the owner of profile) or admin)
 usersRouter
-  .route('/firebase/:firebase_uid')
-  .get(authMiddleware, allowToUserOrAdmin, getUserByFirebaseUid);
+  .route('/firebase/data')
+  .get(authMiddleware, allowToFirebaseUserOrAdmin, getUserByFirebaseUid);
 
 // Protected route: Patch user amenities by user ID (requires authentication, restricts to user (the owner of profile) or admin)
 usersRouter

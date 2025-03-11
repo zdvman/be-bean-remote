@@ -24,7 +24,7 @@ const authMiddleware = (req, res, next) => {
     })
     .then((result) => {
       if (!result?.rows) {
-        // console.error('❌ Database error');
+        console.error('❌ Database error');
         return res.status(500).json({ msg: 'Database error' });
       }
 
@@ -78,10 +78,6 @@ const allowToUserOrAdmin = (req, res, next) => {
           .json({ msg: `User with ID "${requestedUserId}" is not found` });
       }
 
-      // console.log(
-      //   `🔍 Checking permissions: requestedUserId=${requestedUserId}, authenticatedUserId=${authenticatedUserId}, isAdmin=${isAdmin}`
-      // );
-
       // Allow access if:
       // - The authenticated user is an admin
       // - The authenticated user is requesting their own reviews
@@ -91,6 +87,29 @@ const allowToUserOrAdmin = (req, res, next) => {
       return res.status(403).json({ msg: 'Forbidden' });
     })
     .catch(next);
+};
+
+// Middleware to allow access to Firebase user or admin
+const allowToFirebaseUserOrAdmin = (req, res, next) => {
+  if (!req?.user || !req.user?.dbUser) {
+    return res.status(401).json({ msg: 'User not authenticated' });
+  }
+
+  const requestedFirebaseUid = req?.query?.firebase_uid;
+  const authenticatedFirebaseUid = req?.user?.uid;
+  const isAdmin = req?.user?.dbUser?.role === 'admin';
+
+  if (!requestedFirebaseUid) {
+    return res.status(400).json({ msg: 'Firebase UID is missing' });
+  }
+
+  // Allow access if:
+  // - The authenticated user is an admin
+  // - The authenticated user is requesting their own data
+  if (isAdmin || requestedFirebaseUid === authenticatedFirebaseUid) {
+    return next();
+  }
+  return res.status(403).json({ msg: 'Forbidden' });
 };
 
 // Middleware to restrict access by one role or multiple roles
@@ -129,4 +148,5 @@ module.exports = {
   restrictTo,
   allowToUserOrAdmin,
   allowToReviewOwnerOrAdmin,
+  allowToFirebaseUserOrAdmin,
 };

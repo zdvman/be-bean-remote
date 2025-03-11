@@ -348,7 +348,6 @@ describe('POST /api/reviews/:review_id/vote', () => {
       .set('Authorization', 'Bearer regularToken')
       .expect(200)
       .then((res) => {
-        console.log(res);
         expect(res.body).toEqual({
           helpful_count: 1,
           vote_type: 'helpful',
