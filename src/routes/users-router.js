@@ -14,6 +14,7 @@ const {
   getUserReviewsByUserId,
   getUserReviewByReviewId,
   deleteUserReviewByReviewId,
+  getUserByFirebaseUid,
 } = require('../controllers/users.controllers');
 const {
   authMiddleware,
@@ -33,6 +34,11 @@ usersRouter
   .get(authMiddleware, allowToUserOrAdmin, getUserByUserId)
   .patch(authMiddleware, allowToUserOrAdmin, patchUserByUserId)
   .delete(authMiddleware, allowToUserOrAdmin, deleteUserByUserId);
+
+// Protected route: Get user by Firebase UID (requires authentication, restricts to user (the owner of profile) or admin)
+usersRouter
+  .route('/firebase/:firebase_uid')
+  .get(authMiddleware, allowToUserOrAdmin, getUserByFirebaseUid);
 
 // Protected route: Patch user amenities by user ID (requires authentication, restricts to user (the owner of profile) or admin)
 usersRouter

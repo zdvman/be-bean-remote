@@ -368,6 +368,24 @@ function deleteUserReview({ user_id, review_id }) {
     });
 }
 
+function selectUserByFirebaseUid({ firebase_uid }) {
+  if (!firebase_uid) {
+    return Promise.reject({ msg: 'Firebase UID is missing', status: 400 });
+  }
+
+  const sql = `SELECT * FROM users WHERE firebase_uid = $1`;
+  const args = [firebase_uid];
+  return db.query(sql, args).then(({ rows }) => {
+    if (rows.length === 0) {
+      return Promise.reject({
+        msg: `User with Firebase UID "${firebase_uid}" is not found`,
+        status: 404,
+      });
+    }
+    return rows[0];
+  });
+}
+
 module.exports = {
   selectUsers,
   insertUser,
@@ -381,4 +399,5 @@ module.exports = {
   selectUserReviewsByUserId,
   selectUserReviewByReviewId,
   deleteUserReview,
+  selectUserByFirebaseUid
 };

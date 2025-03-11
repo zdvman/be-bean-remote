@@ -11,6 +11,7 @@ const {
   selectUserReviewsByUserId,
   selectUserReviewByReviewId,
   deleteUserReview,
+  selectUserByFirebaseUid,
 } = require('../models/users.models');
 
 function getUsers(request, response, next) {
@@ -110,6 +111,14 @@ function deleteUserReviewByReviewId(request, response, next) {
     .catch(next);
 }
 
+function getUserByFirebaseUid(request, response, next) {
+  return selectUserByFirebaseUid(request?.params)
+    .then((user) => {
+      response.status(200).send({ user });
+    })
+    .catch(next);
+}
+
 module.exports = {
   getUsers,
   postUser,
@@ -123,4 +132,5 @@ module.exports = {
   getUserReviewsByUserId,
   getUserReviewByReviewId,
   deleteUserReviewByReviewId,
+  getUserByFirebaseUid,
 };
