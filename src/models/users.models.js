@@ -27,7 +27,6 @@ function selectUserByUserId({ user_id }) {
       status: 400,
     });
   }
-  console.log('userid', user_id);
   const sql = `SELECT * FROM users WHERE users.id = $1`;
   const args = [user_id];
   return db.query(sql, args).then(({ rows }) => {
@@ -372,7 +371,6 @@ function selectUserByFirebaseUid({ firebase_uid }) {
   if (!firebase_uid) {
     return Promise.reject({ msg: 'Firebase UID is missing', status: 400 });
   }
-
   const sql = `SELECT * FROM users WHERE firebase_uid = $1`;
   const args = [firebase_uid];
   return db.query(sql, args).then(({ rows }) => {
@@ -399,5 +397,5 @@ module.exports = {
   selectUserReviewsByUserId,
   selectUserReviewByReviewId,
   deleteUserReview,
-  selectUserByFirebaseUid
+  selectUserByFirebaseUid,
 };

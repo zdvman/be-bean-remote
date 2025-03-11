@@ -33,7 +33,6 @@ function postUser(request, response, next) {
 function getUserByUserId(request, response, next) {
   return selectUserByUserId(request?.params)
     .then((user) => {
-      console.log(user);
       response.status(200).send({ user });
     })
     .catch(next);
@@ -112,7 +111,7 @@ function deleteUserReviewByReviewId(request, response, next) {
 }
 
 function getUserByFirebaseUid(request, response, next) {
-  return selectUserByFirebaseUid(request?.params)
+  return selectUserByFirebaseUid(request?.query)
     .then((user) => {
       response.status(200).send({ user });
     })

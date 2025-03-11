@@ -32,7 +32,6 @@ describe('GET /cafes', () => {
       .expect(200)
       .then((response) => {
         const cafesArr = response.body.cafes;
-        console.log(cafesArr[0]);
         expect(Array.isArray(cafesArr)).toBe(true);
         expect(cafesArr[0].owner_id).toBe(2);
         expect(cafesArr[0].name).toBe('Remote Bean Central');
@@ -125,7 +124,6 @@ describe('GET /api/cafes sorting queries', () => {
       .get('/api/cafes?amenity=WiFi')
       .expect(200)
       .then(({ body }) => {
-        console.log(body.cafes);
         expect(body.cafes).toBeInstanceOf(Array);
         expect(body.cafes.length).toBeGreaterThan(0);
         body.cafes.forEach((cafe) => {

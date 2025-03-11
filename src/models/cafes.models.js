@@ -105,7 +105,6 @@ function selectAmenitiesByCafeId({ cafe_id }) {
 }
 
 function selectCafesByCoordinates({ minLat, maxLat, minLon, maxLon }) {
-  console.log(minLat, maxLat, minLon, maxLon);
   const params = [minLon, minLat, maxLon, maxLat].map(Number);
   if (params.some(isNaN)) {
     return Promise.reject({

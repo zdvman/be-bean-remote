@@ -49,7 +49,7 @@ const seed = ({
         );
       })
       .then(() => {
-        console.log('All tables created and seeded successfully!');
+        // console.log('All tables created and seeded successfully!');
       })
       // Catch any errors and log them to the console
       .catch((err) => {

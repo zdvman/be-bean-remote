@@ -487,7 +487,6 @@ describe('GET /users/:user_id/favourites', () => {
       .set('Authorization', 'Bearer fakeToken')
       .expect(200);
 
-    console.log('Not empty array ====>', response.body.favourites);
     expect(response.body.favourites).toEqual([
       {
         cafe_id: 1,
@@ -514,8 +513,6 @@ describe('GET /users/:user_id/favourites', () => {
       .get('/api/users/2/favourites') // Bob's user_id is 2
       .set('Authorization', 'Bearer fakeToken')
       .expect(200);
-
-    console.log('Empty array ====>', response.body.favourites);
 
     expect(response.body.favourites).toEqual([]); // Bob has no favorite cafes
   });
@@ -576,8 +573,6 @@ describe('POST /users/:user_id/favourites', () => {
       .set('Authorization', 'Bearer fakeToken')
       .send(newFavorite)
       .expect(201);
-
-    console.log('Favourite ====>', response.body.favourite);
 
     expect(response.body.favourite).toEqual({
       cafe_id: 2,
@@ -697,8 +692,6 @@ describe('GET /users/:user_id/reviews', () => {
       .set('Authorization', 'Bearer fakeToken')
       .expect(200);
 
-    console.log('Reviews ======> ', response.body.reviews);
-
     expect(response.body.reviews.sort()).toEqual(
       [
         {
@@ -727,21 +720,21 @@ describe('GET /users/:user_id/reviews', () => {
     );
   });
 
-  // test('200: returns empty array if user has no reviews', async () => {
-  //   // Mock Firebase authentication for Bob (user_id = 2)
-  //   firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
-  //     uid: 'businessUID456',
-  //     email: 'bobbiz@example.com',
-  //     full_name: 'Bob Business',
-  //   });
+  test('200: returns empty array if user has no reviews', async () => {
+    // Mock Firebase authentication for Bob (user_id = 2)
+    firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
+      uid: 'businessUID456',
+      email: 'bobbiz@example.com',
+      full_name: 'Bob Business',
+    });
 
-  //   const response = await request(app)
-  //     .get('/api/users/2/reviews') // Bob's user_id = 2
-  //     .set('Authorization', 'Bearer fakeToken')
-  //     .expect(200);
+    const response = await request(app)
+      .get('/api/users/2/reviews') // Bob's user_id = 2
+      .set('Authorization', 'Bearer fakeToken')
+      .expect(200);
 
-  //   expect(response.body.reviews).toEqual([]); // Bob has no reviews
-  // });
+    expect(response.body.reviews).toEqual([]); // Bob has no reviews
+  });
 
   test('401: fails when no authorization token is provided', async () => {
     const response = await request(app)
@@ -808,8 +801,6 @@ describe('DELETE /api/users/:user_id/reviews/:review_id', () => {
       .get('/api/users/1/reviews/1')
       .set('Authorization', 'Bearer fakeToken')
       .expect(404);
-
-    console.log(response.body.msg);
 
     expect(response.body.msg).toBe('Review with ID "1" is not found');
   });
@@ -909,5 +900,91 @@ describe('DELETE /api/users/:user_id/reviews/:review_id', () => {
       .expect(401);
 
     expect(response.body.msg).toBe('No token provided');
+  });
+});
+
+describe('GET /users/firebase/data', () => {
+  test('200: returns a user by firebase_uid if request from admin', async () => {
+    // Mock Firebase behavior for an admin user
+    firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
+      uid: 'adminUID789',
+      email: 'caroladmin@example.com',
+      full_name: 'Carol Admin',
+    });
+
+    const response = await request(app)
+      .get('/api/users/firebase/data?firebase_uid=userUID123')
+      .set('Authorization', 'Bearer fakeToken')
+      .expect(200);
+
+    expect(response.body.user).toEqual({
+      id: 1,
+      firebase_uid: 'userUID123',
+      email: 'alice@example.com',
+      full_name: 'Alice Example',
+      avatar: 'https://example.com/alice.png',
+      role: 'user',
+      location: '0101000020E6100000FE43FAEDEBC0F8BF8351499D80E64A40',
+      points: 50,
+      badges: ['Helpful Reviewer'],
+      notification_preferences: { email: true, push: false },
+      fcm_token: null,
+      created_at: expect.any(String),
+      updated_at: expect.any(String),
+    });
+  });
+
+  test('403: if request from the user which is not the owner of the profile it is forbidden', async () => {
+    // Mock Firebase behavior for an business user
+    firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
+      uid: 'businessUID456',
+      email: 'caroladbobbiz@example.com',
+      full_name: 'Bob Business',
+    });
+
+    const response = await request(app)
+      .get('/api/users/firebase/data?firebase_uid=userUID123') // Requesting user with ID 1 and it is not the owner of the profile
+      .set('Authorization', 'Bearer fakeToken')
+      .expect(403);
+
+    expect(response.body.msg).toBe('Forbidden');
+  });
+
+  test('401: if request from the user which is not authorised', async () => {
+    const response = await request(app)
+      .get('/api/users/firebase/data?firebase_uid=userUID123') // No token in request
+      .expect(401);
+
+    expect(response.body.msg).toBe('No token provided');
+  });
+
+  test('200: returns a user by user_id if request from the user himself', async () => {
+    // Mock Firebase behavior for an user - the owner of the profile
+    firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
+      uid: 'userUID123',
+      email: 'alice@example.com',
+      full_name: 'Alice Example',
+    });
+
+    const response = await request(app)
+      .get('/api/users/firebase/data?firebase_uid=userUID123') // Requesting user with ID 1 and it is the owner of the profile
+      .set('Authorization', 'Bearer fakeToken')
+      .expect(200);
+
+    expect(response.body.user).toEqual({
+      id: 1,
+      firebase_uid: 'userUID123',
+      email: 'alice@example.com',
+      full_name: 'Alice Example',
+      avatar: 'https://example.com/alice.png',
+      role: 'user',
+      location: '0101000020E6100000FE43FAEDEBC0F8BF8351499D80E64A40',
+      points: 50,
+      badges: ['Helpful Reviewer'],
+      notification_preferences: { email: true, push: false },
+      fcm_token: null,
+      created_at: expect.any(String),
+      updated_at: expect.any(String),
+    });
   });
 });
