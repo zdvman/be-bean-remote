@@ -384,6 +384,25 @@ function selectUserByFirebaseUid({ firebase_uid }) {
   });
 }
 
+function selectUserAmenitiesByUserId({ user_id }) {
+  if (!user_id) {
+    return Promise.reject({
+      msg: 'User ID is missing',
+      status: 400,
+    });
+  }
+  const sql = `
+    SELECT amenities.name
+    FROM amenities
+    JOIN user_preferences ON amenities.id = user_preferences.amenity_id
+    WHERE user_preferences.user_id = $1;
+  `;
+  const args = [user_id];
+  return db.query(sql, args).then(({ rows }) => {
+    return rows;
+  });
+}
+
 module.exports = {
   selectUsers,
   insertUser,
@@ -398,4 +417,5 @@ module.exports = {
   selectUserReviewByReviewId,
   deleteUserReview,
   selectUserByFirebaseUid,
+  selectUserAmenitiesByUserId,
 };

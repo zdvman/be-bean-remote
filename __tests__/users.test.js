@@ -988,3 +988,84 @@ describe('GET /users/firebase/data', () => {
     });
   });
 });
+
+describe('GET /users/:user_id/amenities', () => {
+  test('200: returns list of preferences for a given user', async () => {
+    // Mock Firebase behavior for an authenticated user (Alice - userUID123)
+    firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
+      uid: 'userUID123',
+      email: 'alice@example.com',
+      full_name: 'Alice Example',
+    });
+
+    const response = await request(app)
+      .get('/api/users/1/amenities') // Alice's user_id is 1
+      .set('Authorization', 'Bearer fakeToken')
+      .expect(200);
+
+    expect(response.body.userAmenities).toEqual([
+      {
+        name: 'WiFi',
+      },
+      {
+        name: 'Power Outlets',
+      },
+    ]);
+  });
+
+  test('200: returns empty array if user has no preferences', async () => {
+    // Mock Firebase behavior for a user with no favorites (Bob - businessUID456)
+    firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
+      uid: 'businessUID456',
+      email: 'bobbiz@example.com',
+      full_name: 'Bob Business',
+    });
+
+    const response = await request(app)
+      .get('/api/users/2/amenities') // Bob's user_id is 2
+      .set('Authorization', 'Bearer fakeToken')
+      .expect(200);
+
+    expect(response.body.userAmenities).toEqual([]); // Bob has no favorite cafes
+  });
+
+  test('401: fails when no authorization token is provided', async () => {
+    const response = await request(app)
+      .get('/api/users/1/amenities')
+      .expect(401);
+
+    expect(response.body.msg).toBe('No token provided');
+  });
+
+  test('403: fails when a user tries to access another user’s preferences', async () => {
+    // Mock Firebase behavior for a different user (Bob - businessUID456)
+    firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
+      uid: 'businessUID456',
+      email: 'bobbiz@example.com',
+      full_name: 'Bob Business',
+    });
+
+    const response = await request(app)
+      .get('/api/users/1/amenities') // Bob is trying to access Alice's favorites
+      .set('Authorization', 'Bearer fakeToken')
+      .expect(403);
+
+    expect(response.body.msg).toBe('Forbidden');
+  });
+
+  test('404: fails if user does not exist', async () => {
+    // Mock Firebase behavior for an unknown user
+    firebaseAdmin.auth().verifyIdToken = jest.fn().mockResolvedValueOnce({
+      uid: 'nonexistentUID',
+      email: 'ghost@example.com',
+      full_name: 'Ghost User',
+    });
+
+    const response = await request(app)
+      .get('/api/users/999/amenities') // User 999 does not exist
+      .set('Authorization', 'Bearer fakeToken')
+      .expect(404);
+
+    expect(response.body.msg).toBe('User not found, please register first');
+  });
+});
