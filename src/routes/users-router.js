@@ -6,7 +6,7 @@ const {
   patchUserByUserId,
   postUser,
   getUserByUserId,
-  patchUserAmenitiersByUserId,
+  patchUserAmenitiesByUserId,
   deleteUserByUserId,
   deleteUserFavouriteCafeByCafeId,
   postUserFavouriteCafeByUserId,
@@ -15,6 +15,7 @@ const {
   getUserReviewByReviewId,
   deleteUserReviewByReviewId,
   getUserByFirebaseUid,
+  getUserAmenitiesByUserId,
 } = require('../controllers/users.controllers');
 const {
   authMiddleware,
@@ -44,7 +45,8 @@ usersRouter
 // Protected route: Patch user amenities by user ID (requires authentication, restricts to user (the owner of profile) or admin)
 usersRouter
   .route('/:user_id/amenities')
-  .patch(authMiddleware, allowToUserOrAdmin, patchUserAmenitiersByUserId);
+  .get(authMiddleware, allowToUserOrAdmin, getUserAmenitiesByUserId)
+  .patch(authMiddleware, allowToUserOrAdmin, patchUserAmenitiesByUserId);
 
 usersRouter
   .route('/:user_id/favourites')

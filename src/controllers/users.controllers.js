@@ -12,6 +12,7 @@ const {
   selectUserReviewByReviewId,
   deleteUserReview,
   selectUserByFirebaseUid,
+  selectUserAmenitiesByUserId,
 } = require('../models/users.models');
 
 function getUsers(request, response, next) {
@@ -46,7 +47,7 @@ function patchUserByUserId(request, response, next) {
     .catch(next);
 }
 
-function patchUserAmenitiersByUserId(request, response, next) {
+function patchUserAmenitiesByUserId(request, response, next) {
   return updateUserAmenitiesByUserId(request?.params, request?.body)
     .then((userAmenities) => {
       response.status(200).send({ userAmenities });
@@ -118,12 +119,20 @@ function getUserByFirebaseUid(request, response, next) {
     .catch(next);
 }
 
+function getUserAmenitiesByUserId(request, response, next) {
+  return selectUserAmenitiesByUserId(request?.params)
+    .then((userAmenities) => {
+      response.status(200).send({ userAmenities });
+    })
+    .catch(next);
+}
+
 module.exports = {
   getUsers,
   postUser,
   getUserByUserId,
   patchUserByUserId,
-  patchUserAmenitiersByUserId,
+  patchUserAmenitiesByUserId,
   deleteUserByUserId,
   getUserFavouritesByUserId,
   postUserFavouriteCafeByUserId,
@@ -132,4 +141,5 @@ module.exports = {
   getUserReviewByReviewId,
   deleteUserReviewByReviewId,
   getUserByFirebaseUid,
+  getUserAmenitiesByUserId,
 };
