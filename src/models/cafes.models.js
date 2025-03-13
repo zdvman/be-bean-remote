@@ -22,10 +22,6 @@ function insertCafe(
     return Promise.reject({ msg: 'Missing required fields', status: 400 });
   }
 
-  /*if (typeof longitude !== "number" || typeof latitude !== "number") {
-    throw new Error("Invalid coordinates format. Coordinates must be numbers.");
-  }*/
-
   const geoJson = location ? JSON.stringify(cafe.location) : null;
   const sql = `
     INSERT INTO cafes
@@ -143,13 +139,13 @@ function selectCafesByRadius({ lat, lon, radius }) {
     });
   }
   const sql = `
-  SELECT 
-    id, 
-    name, 
-    description, 
-    address, 
-    busy_status, 
-    is_verified, 
+  SELECT
+    id,
+    name,
+    description,
+    address,
+    busy_status,
+    is_verified,
     created_at,
     ST_Y(location::geometry) AS latitude,
     ST_X(location::geometry) AS longitude
