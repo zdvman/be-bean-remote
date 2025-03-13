@@ -6,16 +6,448 @@
     "description": "serves up a json representation of all the available endpoints of the api"
   },
   "GET /api/users": {
-    "description": "serves an array of all users",
+    "description": "Serves an array of all users. Restricted to admin users only.",
     "queries": [],
     "exampleResponse": {
       "users": [
         {
-          "username": "butter_bridge",
-          "name": "jonny",
-          "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+          "id": 1,
+          "firebase_uid": "userUID123",
+          "email": "alice@example.com",
+          "full_name": "Alice Example",
+          "role": "user"
         }
       ]
+    }
+  },
+  "POST /api/users": {
+    "description": "Creates a new user account. Requires authentication.",
+    "queries": [],
+    "exampleResponse": {
+      "user": {
+        "id": 1,
+        "firebase_uid": "userUID123",
+        "email": "alice@example.com",
+        "full_name": "Alice Example",
+        "role": "user"
+      }
+    }
+  },
+  "GET /api/users/:user_id": {
+    "description": "Retrieves details of a specific user by their user ID. Restricted to the user themselves or admins.",
+    "queries": [],
+    "exampleResponse": {
+      "user": {
+        "id": 1,
+        "firebase_uid": "userUID123",
+        "email": "alice@example.com",
+        "full_name": "Alice Example",
+        "role": "user"
+      }
+    }
+  },
+  "PATCH /api/users/:user_id": {
+    "description": "Updates the details of a specific user by their user ID. Restricted to the user themselves or admins.",
+    "queries": [],
+    "exampleResponse": {
+      "user": {
+        "id": 1,
+        "firebase_uid": "userUID123",
+        "email": "alice@example.com",
+        "full_name": "Alice Updated",
+        "role": "user"
+      }
+    }
+  },
+  "DELETE /api/users/:user_id": {
+    "description": "Deletes a specific user by their user ID. Restricted to the user themselves or admins.",
+    "queries": [],
+    "exampleResponse": {
+      "msg": "User deleted successfully"
+    }
+  },
+  "PATCH /api/users/:user_id/amenities": {
+    "description": "Updates the amenities preferences for a specific user by their user ID. Restricted to the user themselves or admins.",
+    "queries": [],
+    "exampleResponse": {
+      "userAmenities": [
+        { "user_id": 1, "amenity_id": 1 },
+        { "user_id": 1, "amenity_id": 2 }
+      ]
+    }
+  },
+  "GET /api/users/:user_id/favourites": {
+    "description": "Retrieves the list of favorite cafes for a specific user by their user ID. Restricted to the user themselves or admins.",
+    "queries": [],
+    "exampleResponse": {
+      "favourites": [
+        {
+          "cafe_id": 1,
+          "name": "Remote Bean Central",
+          "address": "123 Coffee St, Manchester"
+        }
+      ]
+    }
+  },
+  "POST /api/users/:user_id/favourites": {
+    "description": "Adds a cafe to the list of favorites for a specific user by their user ID. Restricted to the user themselves or admins.",
+    "queries": [],
+    "exampleResponse": {
+      "favourite": {
+        "cafe_id": 2,
+        "name": "Mocha Lounge",
+        "address": "24 Latte Lane, Manchester"
+      }
+    }
+  },
+  "DELETE /api/users/:user_id/favourites/:cafe_id": {
+    "description": "Removes a specific cafe from the list of favorites for a user by their user ID and the cafe ID. Restricted to the user themselves or admins.",
+    "queries": [],
+    "exampleResponse": {
+      "msg": "Cafe removed from favorites successfully"
+    }
+  },
+  "GET /api/users/:user_id/reviews": {
+    "description": "Retrieves all reviews written by a specific user by their user ID. Restricted to the user themselves or admins.",
+    "queries": [],
+    "exampleResponse": {
+      "reviews": [
+        {
+          "review_id": 1,
+          "cafe_id": 1,
+          "cafe_name": "Remote Bean Central",
+          "rating": 5,
+          "review_text": "Fantastic coffee, great atmosphere!"
+        }
+      ]
+    }
+  },
+  "GET /api/users/:user_id/reviews/:review_id": {
+    "description": "Retrieves a specific review written by a user by their user ID and the review ID. Restricted to the user themselves or admins.",
+    "queries": [],
+    "exampleResponse": {
+      "review": {
+        "review_id": 1,
+        "cafe_id": 1,
+        "cafe_name": "Remote Bean Central",
+        "rating": 5,
+        "review_text": "Fantastic coffee, great atmosphere!"
+      }
+    }
+  },
+  "DELETE /api/users/:user_id/reviews/:review_id": {
+    "description": "Deletes a specific review written by a user by their user ID and the review ID. Restricted to the user themselves or admins. Returns no content (HTTP 204).",
+    "queries": [],
+    "exampleResponse": null
+  },
+  "GET /api/cafes": {
+    "description": "Retrieves all cafes. Can be filtered by amenity using the 'amenity' query parameter.",
+    "queries": ["amenity"],
+    "exampleResponse": {
+      "cafes": [
+        {
+          "id": 1,
+          "name": "Cafe Example",
+          "address": "123 Main St"
+        }
+      ]
+    }
+  },
+  "POST /api/cafes": {
+    "description": "Creates a new cafe. Requires authentication.",
+    "queries": [],
+    "exampleResponse": {
+      "cafe": {
+        "id": 1,
+        "name": "New Cafe",
+        "address": "456 Elm St"
+      }
+    }
+  },
+  "GET /api/cafes/:cafe_id": {
+    "description": "Retrieves details of a specific cafe by its ID.",
+    "queries": [],
+    "exampleResponse": {
+      "cafe": {
+        "id": 1,
+        "name": "Cafe Example",
+        "address": "123 Main St"
+      }
+    }
+  },
+  "GET /api/cafes/:cafe_id/amenities": {
+    "description": "Lists amenities for a specific cafe.",
+    "queries": [],
+    "exampleResponse": {
+      "amenities": [
+        {
+          "name": "WiFi"
+        },
+        {
+          "name": "Power Outlets"
+        }
+      ]
+    }
+  },
+  "GET /api/cafes/map/visible": {
+    "description": "Fetches cafes within a bounding box defined by minLat, maxLat, minLon, and maxLon query parameters.",
+    "queries": ["minLat", "maxLat", "minLon", "maxLon"],
+    "exampleResponse": {
+      "cafes": [
+        {
+          "id": 1,
+          "name": "Cafe Example",
+          "latitude": 51.5,
+          "longitude": -0.1
+        }
+      ]
+    }
+  },
+  "GET /api/cafes/map/radius": {
+    "description": "Retrieves cafes within a specified radius (in meters) from a given lat and lon.",
+    "queries": ["lat", "lon", "radius"],
+    "exampleResponse": {
+      "cafes": [
+        {
+          "id": 1,
+          "name": "Cafe Example",
+          "latitude": 51.5,
+          "longitude": -0.1
+        }
+      ]
+    }
+  },
+  "GET /api/cafes/:cafe_id/reviews": {
+    "description": "Gets all reviews for a specific cafe.",
+    "queries": [],
+    "exampleResponse": {
+      "reviews": [
+        {
+          "id": 1,
+          "rating": 5,
+          "review_text": "Great cafe!"
+        }
+      ]
+    }
+  },
+  "POST /api/cafes/:cafe_id/reviews": {
+    "description": "Adds a review for a specific cafe. Requires authentication.",
+    "queries": [],
+    "exampleResponse": {
+      "review": {
+        "id": 1,
+        "rating": 5,
+        "review_text": "Great cafe!"
+      }
+    }
+  },
+  "GET /api/reviews/:review_id": {
+    "description": "Retrieves a specific review by its ID.",
+    "queries": [],
+    "exampleResponse": {
+      "review": {
+        "id": 1,
+        "rating": 5,
+        "review_text": "Great cafe!"
+      }
+    }
+  },
+  "DELETE /api/reviews/:review_id": {
+    "description": "Deletes a specific review. Restricted to the review owner or admins.",
+    "queries": [],
+    "exampleResponse": null
+  },
+  "GET /api/reviews/:review_id/votes": {
+    "description": "Gets the count of votes for a review, filterable by type (helpful or unhelpful).",
+    "queries": ["type"],
+    "exampleResponse": {
+      "count": 10
+    }
+  },
+  "GET /api/reviews/:review_id/vote": {
+    "description": "Retrieves the current user’s vote type for a review. Requires authentication.",
+    "queries": [],
+    "exampleResponse": {
+      "vote_type": "helpful"
+    }
+  },
+  "POST /api/reviews/:review_id/vote": {
+    "description": "Casts, updates, or removes a vote on a review. Requires authentication and a 'type' query parameter (helpful or unhelpful).",
+    "queries": ["type"],
+    "exampleResponse": {
+      "vote_type": "helpful",
+      "helpful_count": 11
+    }
+  },
+  "GET /api/amenities": {
+    "description": "Retrieves a list of all amenities. Requires authentication (admin only).",
+    "queries": [],
+    "exampleResponse": {
+      "amenities": [
+        {
+          "id": 1,
+          "name": "WiFi"
+        },
+        {
+          "id": 2,
+          "name": "Power Outlets"
+        }
+      ]
+    }
+  },
+
+  "POST /api/amenities": {
+    "description": "Creates a new amenity. Requires authentication (admin only).",
+    "queries": [],
+    "exampleBody": {
+      "name": "Outdoor Seating"
+    },
+    "exampleResponse": {
+      "amenity": {
+        "id": 3,
+        "name": "Outdoor Seating"
+      }
+    }
+  },
+
+  "GET /api/amenities/:id": {
+    "description": "Retrieves a specific amenity by its ID. Requires authentication (admin only).",
+    "queries": [],
+    "exampleResponse": {
+      "amenity": {
+        "id": 3,
+        "name": "Outdoor Seating"
+      }
+    }
+  },
+
+  "PATCH /api/amenities/:id": {
+    "description": "Updates the name of a specific amenity by its ID. Requires authentication (admin only).",
+    "queries": [],
+    "exampleBody": {
+      "name": "Outdoor Patio"
+    },
+    "exampleResponse": {
+      "amenity": {
+        "id": 3,
+        "name": "Outdoor Patio"
+      }
+    }
+  },
+
+  "DELETE /api/amenities/:id": {
+    "description": "Deletes a specific amenity by its ID. Requires authentication (admin only). Returns no content (HTTP 204).",
+    "queries": [],
+    "exampleResponse": null
+  },
+
+  "GET /api/reports": {
+    "description": "Retrieves all reports. Requires authentication (admin only).",
+    "queries": [],
+    "exampleResponse": {
+      "reports": [
+        {
+          "id": 1,
+          "reporter_id": 2,
+          "cafe_id": 10,
+          "reason": "Spam",
+          "status": "open"
+        }
+      ]
+    }
+  },
+
+  "POST /api/reports": {
+    "description": "Creates a new report. Requires authentication (any logged-in user).",
+    "queries": [],
+    "exampleBody": {
+      "reporter_id": 2,
+      "cafe_id": 10,
+      "reason": "Spam"
+    },
+    "exampleResponse": {
+      "report": {
+        "id": 2,
+        "reporter_id": 2,
+        "cafe_id": 10,
+        "reason": "Spam",
+        "status": "open"
+      }
+    }
+  },
+
+  "GET /api/reports/:id": {
+    "description": "Retrieves a specific report by its ID. Requires authentication (admin only).",
+    "queries": [],
+    "exampleResponse": {
+      "report": {
+        "id": 2,
+        "reporter_id": 2,
+        "cafe_id": 10,
+        "reason": "Spam",
+        "status": "open"
+      }
+    }
+  },
+
+  "PATCH /api/reports/:id": {
+    "description": "Updates a report’s status by its ID. Requires authentication (admin only).",
+    "queries": [],
+    "exampleBody": {
+      "status": "resolved"
+    },
+    "exampleResponse": {
+      "report": {
+        "id": 2,
+        "reporter_id": 2,
+        "cafe_id": 10,
+        "reason": "Spam",
+        "status": "resolved"
+      }
+    }
+  },
+
+  "DELETE /api/reports/:id": {
+    "description": "Deletes a specific report by its ID. Requires authentication (admin only). Returns no content (HTTP 204).",
+    "queries": [],
+    "exampleResponse": null
+  },
+
+  "GET /api/users/:user_id/visits": {
+    "description": "Retrieves all cafe visits logged by the specified user. Requires authentication (could be user or admin, depending on your rules).",
+    "queries": [],
+    "exampleResponse": {
+      "visits": [
+        {
+          "id": 1,
+          "user_id": 10,
+          "cafe_id": 5,
+          "visited_at": "2024-12-01T10:00:00.000Z"
+        },
+        {
+          "id": 2,
+          "user_id": 10,
+          "cafe_id": 7,
+          "visited_at": "2025-01-15T14:00:00.000Z"
+        }
+      ]
+    }
+  },
+
+  "POST /api/users/:user_id/visits": {
+    "description": "Logs a new cafe visit for the specified user. Requires authentication (could be user or admin, depending on your rules).",
+    "queries": [],
+    "exampleBody": {
+      "user_id": 10,
+      "cafe_id": 7
+    },
+    "exampleResponse": {
+      "visit": {
+        "id": 3,
+        "user_id": 10,
+        "cafe_id": 7,
+        "visited_at": "2025-03-08T16:30:00.000Z"
+      }
     }
   }
 }

@@ -1,6 +1,6 @@
 # Bean Remote API
 
-A backend API built with **Node.js**, **Express**, and **PostgreSQL**. This API supports CRUD operations for topics, articles, comments, and users, with additional features like sorting, filtering, and pagination.
+A backend API built with **Node.js**, **Express**, and **PostgreSQL**, designed to support remote workers in finding work-friendly cafes. This API provides CRUD operations for users, cafes, reviews, visits, and amenities, along with features such as sorting, filtering, pagination, and geolocation-based searches.
 
 This project was created as part of a **Digital Skills Bootcamp in Software Engineering** provided by [Northcoders](https://northcoders.com/).
 
@@ -8,15 +8,18 @@ This project was created as part of a **Digital Skills Bootcamp in Software Engi
 
 ## 🔗 Hosted API
 
-<!-- The API is hosted on Render: [Northcoders News API](https://yourdomain.onrender.com/) -->
+The API is hosted on Render: [Bean Remote API](https://be-bean-remote.onrender.com/api/)
 
-You can access available endpoints by making a **GET** request to `/api`:
+You can access the full list of available endpoints [here](https://be-bean-remote.onrender.com/api/).
+
+To check the health of the API, you can send a **GET** request to `/`:
 
 ```bash
-# curl https://youraddress/api
+# Healthcheck endpoint
+curl https://be-bean-remote.onrender.com/
 ```
 
-This will return a JSON object detailing all available routes.
+This will return a JSON object confirming that the API is operational.
 
 ---
 
@@ -77,6 +80,25 @@ PGDATABASE=bean_remote_test
 PORT=3001
 ```
 
+**Firebase Authentication:**
+The API uses Firebase for user authentication. You need to add Firebase credentials in your `.env` file as follows:
+
+```env
+FIREBASE_SERVICE_ACCOUNT='{
+  "type": "service_account",
+  "project_id": "your_project_id",
+  "private_key_id": "your_private_key_id",
+  "private_key": "-----BEGIN PRIVATE KEY-----your_private_key-----END PRIVATE KEY-----\n",
+  "client_email": "your_client_email",
+  "client_id": "your_client_id",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "your_client_x509_cert_url",
+  "universe_domain": "googleapis.com"
+}'
+```
+
 Ensure these files are included in `.gitignore` to keep them private.
 
 4️⃣ **Set up and seed the database:**
@@ -85,58 +107,32 @@ Ensure these files are included in `.gitignore` to keep them private.
 npm run setup-dbs   # Creates the databases
 ```
 
-Install PostGIS Locally
-On Ubuntu/Debian-based Linux
+### Install PostGIS Locally
 
+#### On Ubuntu/Debian-based Linux
 ```bash
 sudo apt-get update
 sudo apt-get install postgis postgresql-15-postgis-3  # Adjust versions if needed
 ```
 
-On macOS (Homebrew)
-
+#### On macOS (Homebrew)
 ```bash
 brew install postgis
 ```
 
-Confirm PostGIS is installed by running:
-
+#### Enable PostGIS in Your Database
 ```bash
-psql --version
-```
-
-You should see a version number and possibly mention of PostGIS if it’s bundled.
-
-Enable PostGIS in Your Database
-Open a terminal (inside VSCode or your system terminal).
-Connect to your local PostgreSQL database (the one you use for your Bean Remote project). For example:
-
-```bash
-psql -d bean_remote_dev  # or whatever your DB is called
-```
-
-Once in the psql prompt, run:
-
-```sql
+psql -d bean_remote_dev  # Connect to the database
 CREATE EXTENSION IF NOT EXISTS postgis;
 ```
 
-If you see CREATE EXTENSION, it means it was installed successfully.
-If you get an error like ERROR: could not open extension control file ..., it means PostGIS isn’t installed properly.
-
-Repeat for your test database as well, if you have a separate one (e.g. bean_remote_test).
-
-```sql
-\c bean_remote_test   -- switch to the test DB
+Repeat for your test database:
+```bash
+\c bean_remote_test   # Switch to the test DB
 CREATE EXTENSION IF NOT EXISTS postgis;
 ```
 
 Now both your dev and test databases have the PostGIS extension enabled.
-
-```bash
-sudo apt-get update
-sudo apt-get install postgis postgresql-15-postgis-3  # Adjust versions if needed
-```
 
 ```bash
 npm run seed        # Seeds the development database
@@ -154,9 +150,34 @@ npm test
 
 - **`npm run setup-dbs`** - Creates the required PostgreSQL databases.
 - **`npm run seed`** - Seeds the development database with sample data.
+- **`npm run seed-test`** - Seeds the test database.
+- **`npm run seed-dev`** - Seeds the development database.
+- **`npm run seed-prod`** - Seeds the production database.
 - **`npm test`** - Runs the Jest test suite.
+- **`npm run prepare`** - Installs Husky for pre-commit testing.
+- **`npm run start-test`** - Starts the test server using nodemon.
 - **`npm run start-dev`** - Starts the development server using nodemon.
-- **`npm start`** - Starts the production server.
+- **`npm run start`** - Starts the production server.
+
+---
+
+## 🛠 CI/CD & Automation
+
+This project uses **GitHub Actions** for continuous integration and deployment. The pipeline includes:
+
+- Running automated tests using Jest and Supertest.
+- Deploying to Render upon successful test completion.
+- Configuring PostGIS in the test database within the CI environment.
+
+The configuration can be found in `.github/workflows/ci.yml`.
+
+Additionally, **Husky** is used to enforce pre-commit testing:
+
+```sh
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+npm test
+```
 
 ---
 
@@ -165,20 +186,17 @@ npm test
 This project is hosted using **Supabase** (for the database) and **Render** (for the API). Below are the steps followed for hosting:
 
 1️⃣ **Set up Supabase Database**
-
 - Created a new database instance in Supabase.
 - Obtained a **DATABASE_URL** for the hosted database.
 - Stored it in `.env.production`.
 
 2️⃣ **Update Connection Configuration**
-
 - Modified `connection.js` to use `DATABASE_URL` in production.
 
 3️⃣ **Deploy to Render**
-
 - Created a **Web Service** on Render.
-- Set **Build Command**: `yarn`
-- Set **Start Command**: `yarn start`
+- Set **Build Command**: `npm install`
+- Set **Start Command**: `npm start`
 - Added environment variables:
   ```
   DATABASE_URL=<Your_Supabase_Connection_URL>
@@ -193,13 +211,29 @@ npm run seed-prod
 
 ---
 
+## 📌 API Structure (MVC & Routing)
+
+The API follows an **MVC (Model-View-Controller)** architecture:
+
+- **Models**: Handle database queries (located in `src/models/`).
+- **Controllers**: Process business logic and database interaction (located in `src/controllers/`).
+- **Routes**: Define API endpoints and link controllers (located in `src/routes/`).
+- **Middleware**: Handles authentication and error handling (`src/middleware/`).
+
+---
+
 ## 📌 Endpoints Overview (implemented with Express Routers)
 
 ### 📝 GET `/`
 
-Healthcheck endoint
-Returns a JSON object with msg key {msg: 'Healthcheck is passed' }
+**Healthcheck Endpoint**
+Returns a JSON object:
+```json
+{ "msg": "Healthcheck is passed" }
+```
 
-### 📝 GET `/api`
+For a full list of available endpoints, visit [Bean Remote API Endpoints](https://be-bean-remote.onrender.com/api/).
 
-Returns a JSON object describing all available API endpoints.
+---
+
+

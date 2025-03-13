@@ -1,6 +1,5 @@
 const {
   selectUsers,
-  selectUserByUsername,
   insertUser,
   selectUserByUserId,
   updateUserByUserId,
@@ -12,20 +11,14 @@ const {
   selectUserReviewsByUserId,
   selectUserReviewByReviewId,
   deleteUserReview,
+  selectUserByFirebaseUid,
+  selectUserAmenitiesByUserId,
 } = require('../models/users.models');
 
 function getUsers(request, response, next) {
   return selectUsers()
     .then((users) => {
       response.status(200).send({ users });
-    })
-    .catch(next);
-}
-
-function getUserByUsername(request, response, next) {
-  return selectUserByUsername(request?.params)
-    .then((user) => {
-      response.status(200).send({ user });
     })
     .catch(next);
 }
@@ -41,7 +34,6 @@ function postUser(request, response, next) {
 function getUserByUserId(request, response, next) {
   return selectUserByUserId(request?.params)
     .then((user) => {
-      console.log(user);
       response.status(200).send({ user });
     })
     .catch(next);
@@ -55,7 +47,7 @@ function patchUserByUserId(request, response, next) {
     .catch(next);
 }
 
-function patchUserAmenitiersByUserId(request, response, next) {
+function patchUserAmenitiesByUserId(request, response, next) {
   return updateUserAmenitiesByUserId(request?.params, request?.body)
     .then((userAmenities) => {
       response.status(200).send({ userAmenities });
@@ -119,13 +111,28 @@ function deleteUserReviewByReviewId(request, response, next) {
     .catch(next);
 }
 
+function getUserByFirebaseUid(request, response, next) {
+  return selectUserByFirebaseUid(request?.query)
+    .then((user) => {
+      response.status(200).send({ user });
+    })
+    .catch(next);
+}
+
+function getUserAmenitiesByUserId(request, response, next) {
+  return selectUserAmenitiesByUserId(request?.params)
+    .then((userAmenities) => {
+      response.status(200).send({ userAmenities });
+    })
+    .catch(next);
+}
+
 module.exports = {
   getUsers,
-  getUserByUsername,
   postUser,
   getUserByUserId,
   patchUserByUserId,
-  patchUserAmenitiersByUserId,
+  patchUserAmenitiesByUserId,
   deleteUserByUserId,
   getUserFavouritesByUserId,
   postUserFavouriteCafeByUserId,
@@ -133,4 +140,6 @@ module.exports = {
   getUserReviewsByUserId,
   getUserReviewByReviewId,
   deleteUserReviewByReviewId,
+  getUserByFirebaseUid,
+  getUserAmenitiesByUserId,
 };

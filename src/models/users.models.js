@@ -12,21 +12,6 @@ function selectUsers() {
   });
 }
 
-function selectUserByUsername({ username }) {
-  console.log(username);
-  const sql = `SELECT * FROM users WHERE users.username = $1`;
-  const args = [username];
-  return db.query(sql, args).then(({ rows }) => {
-    if (rows.length === 0) {
-      return Promise.reject({
-        msg: `User with username "${username}" is not found`,
-        status: 404,
-      });
-    }
-    return rows[0];
-  });
-}
-
 function insertUser({ uid, email, full_name }) {
   const sql = `INSERT INTO users (firebase_uid, email, full_name) VALUES ($1, $2, $3) RETURNING *`;
   const args = [uid, email, full_name];
@@ -35,19 +20,19 @@ function insertUser({ uid, email, full_name }) {
   });
 }
 
-function selectUserByUserId({ id }) {
-  if (!id) {
+function selectUserByUserId({ user_id }) {
+  if (!user_id) {
     return Promise.reject({
       msg: 'User ID is missing',
       status: 400,
     });
   }
   const sql = `SELECT * FROM users WHERE users.id = $1`;
-  const args = [id];
+  const args = [user_id];
   return db.query(sql, args).then(({ rows }) => {
     if (rows.length === 0) {
       return Promise.reject({
-        msg: `User with ID "${id}" is not found`,
+        msg: `User with ID "${user_id}" is not found`,
         status: 404,
       });
     }
@@ -56,7 +41,7 @@ function selectUserByUserId({ id }) {
 }
 
 function updateUserByUserId(
-  { id }, // Extract user ID from request params
+  { user_id }, // Extract user ID from request params
   {
     // Extract fields to be updated from request body
     full_name,
@@ -68,7 +53,7 @@ function updateUserByUserId(
     fcm_token,
   }
 ) {
-  if (!id) {
+  if (!user_id) {
     return Promise.reject({
       msg: 'User ID is missing',
       status: 400,
@@ -115,7 +100,7 @@ function updateUserByUserId(
     });
   }
 
-  values.push(id);
+  values.push(user_id);
 
   const sql = `
     UPDATE users
@@ -127,7 +112,7 @@ function updateUserByUserId(
   return db.query(sql, values).then(({ rows }) => {
     if (rows.length === 0) {
       return Promise.reject({
-        msg: `User with ID "${id}" is not found`,
+        msg: `User with ID "${user_id}" is not found`,
         status: 404,
       });
     }
@@ -135,8 +120,8 @@ function updateUserByUserId(
   });
 }
 
-function updateUserAmenitiesByUserId({ id }, { amenities }) {
-  if (!id) {
+function updateUserAmenitiesByUserId({ user_id }, { amenities }) {
+  if (!user_id) {
     return Promise.reject({
       msg: 'User ID is missing',
       status: 400,
@@ -150,7 +135,7 @@ function updateUserAmenitiesByUserId({ id }, { amenities }) {
   }
 
   return db
-    .query(`DELETE FROM user_preferences WHERE user_id = $1`, [id])
+    .query(`DELETE FROM user_preferences WHERE user_id = $1`, [user_id])
     .then(() => {
       if (amenities.length === 0) {
         return []; // No amenities to insert
@@ -166,7 +151,7 @@ function updateUserAmenitiesByUserId({ id }, { amenities }) {
         RETURNING *;
       `;
 
-      const queryParams = [id, ...amenities];
+      const queryParams = [user_id, ...amenities];
 
       return db.query(insertAmenities, queryParams);
     })
@@ -175,8 +160,8 @@ function updateUserAmenitiesByUserId({ id }, { amenities }) {
     });
 }
 
-function deleteUser({ id }) {
-  if (!id) {
+function deleteUser({ user_id }) {
+  if (!user_id) {
     return Promise.reject({
       msg: 'User ID is missing',
       status: 400,
@@ -184,11 +169,11 @@ function deleteUser({ id }) {
   }
 
   return db
-    .query(`DELETE FROM users WHERE id = $1`, [id])
+    .query(`DELETE FROM users WHERE id = $1`, [user_id])
     .then(({ rowCount }) => {
       if (rowCount === 0) {
         return Promise.reject({
-          msg: `User with ID "${id}" is not found`,
+          msg: `User with ID "${user_id}" is not found`,
           status: 404,
         });
       }
@@ -196,8 +181,8 @@ function deleteUser({ id }) {
     });
 }
 
-function selectUserFavouritesByUserId({ id }) {
-  if (!id) {
+function selectUserFavouritesByUserId({ user_id }) {
+  if (!user_id) {
     return Promise.reject({
       msg: 'User ID is missing',
       status: 400,
@@ -217,14 +202,14 @@ function selectUserFavouritesByUserId({ id }) {
     JOIN cafes ON user_favorites.cafe_id = cafes.id
     WHERE user_favorites.user_id = $1;
   `;
-  const args = [id];
+  const args = [user_id];
   return db.query(sql, args).then(({ rows }) => {
     return rows;
   });
 }
 
-function insertUserFavouriteCafeByUserId({ id }, { cafe_id }) {
-  if (!id) {
+function insertUserFavouriteCafeByUserId({ user_id }, { cafe_id }) {
+  if (!user_id) {
     return Promise.reject({ msg: 'User ID is missing', status: 400 });
   }
   if (!cafe_id) {
@@ -232,15 +217,15 @@ function insertUserFavouriteCafeByUserId({ id }, { cafe_id }) {
   }
 
   return Promise.all([
-    checkUserExists(id),
+    checkUserExists(user_id),
     checkCafeExists(cafe_id),
-    checkCafeIsAlreadyInFavourites(id, cafe_id),
+    checkCafeIsAlreadyInFavourites(user_id, cafe_id),
   ])
     .then(() =>
       db.query(
         `INSERT INTO user_favorites (user_id, cafe_id) 
          VALUES ($1, $2) RETURNING cafe_id`,
-        [id, cafe_id]
+        [user_id, cafe_id]
       )
     )
     .then(({ rows }) => {
@@ -260,19 +245,19 @@ function insertUserFavouriteCafeByUserId({ id }, { cafe_id }) {
     .then(({ rows }) => rows[0]);
 }
 
-function deleteUserFavouriteCafe({ id }, { cafe_id }) {
-  if (!id) {
+function deleteUserFavouriteCafe({ user_id, cafe_id }) {
+  if (!user_id) {
     return Promise.reject({ msg: 'User ID is missing', status: 400 });
   }
   if (!cafe_id) {
     return Promise.reject({ msg: 'Cafe ID is missing', status: 400 });
   }
 
-  return Promise.all([checkUserExists(id), checkCafeExists(cafe_id)])
+  return Promise.all([checkUserExists(user_id), checkCafeExists(cafe_id)])
     .then(() =>
       db.query(
         `DELETE FROM user_favorites WHERE user_id = $1 AND cafe_id = $2;`,
-        [id, cafe_id]
+        [user_id, cafe_id]
       )
     )
     .then(({ rowCount }) => {
@@ -286,8 +271,8 @@ function deleteUserFavouriteCafe({ id }, { cafe_id }) {
     });
 }
 
-function selectUserReviewsByUserId({ id }) {
-  if (!id) {
+function selectUserReviewsByUserId({ user_id }) {
+  if (!user_id) {
     return Promise.reject({
       msg: 'User ID is missing',
       status: 400,
@@ -312,21 +297,21 @@ function selectUserReviewsByUserId({ id }) {
     ORDER BY reviews.created_at DESC; -- Latest reviews first
   `;
 
-  const args = [id];
+  const args = [user_id];
 
   return db.query(sql, args).then(({ rows }) => {
     return rows;
   });
 }
 
-function selectUserReviewByReviewId({ id, review_id }) {
-  if (!id) {
+function selectUserReviewByReviewId({ user_id, review_id }) {
+  if (!user_id) {
     return Promise.reject({ msg: 'User ID is missing', status: 400 });
   }
   if (!review_id) {
     return Promise.reject({ msg: 'Review ID is missing', status: 400 });
   }
-  return checkUserExists(id).then(() => {
+  return checkUserExists(user_id).then(() => {
     const sql = `
     SELECT 
       reviews.id AS review_id,
@@ -344,7 +329,7 @@ function selectUserReviewByReviewId({ id, review_id }) {
     WHERE reviews.user_id = $1 AND reviews.id = $2;
   `;
 
-    const args = [id, review_id];
+    const args = [user_id, review_id];
 
     return db.query(sql, args).then(({ rows }) => {
       if (rows.length === 0) {
@@ -358,18 +343,18 @@ function selectUserReviewByReviewId({ id, review_id }) {
   });
 }
 
-function deleteUserReview({ id, review_id }) {
-  if (!id) {
+function deleteUserReview({ user_id, review_id }) {
+  if (!user_id) {
     return Promise.reject({ msg: 'User ID is missing', status: 400 });
   }
   if (!review_id) {
     return Promise.reject({ msg: 'Review ID is missing', status: 400 });
   }
 
-  return checkUserExists(id)
+  return checkUserExists(user_id)
     .then(() => {
       const sql = `DELETE FROM reviews WHERE user_id = $1 AND id = $2;`;
-      return db.query(sql, [id, review_id]);
+      return db.query(sql, [user_id, review_id]);
     })
     .then(({ rowCount }) => {
       if (rowCount === 0) {
@@ -382,9 +367,44 @@ function deleteUserReview({ id, review_id }) {
     });
 }
 
+function selectUserByFirebaseUid({ firebase_uid }) {
+  if (!firebase_uid) {
+    return Promise.reject({ msg: 'Firebase UID is missing', status: 400 });
+  }
+  const sql = `SELECT * FROM users WHERE firebase_uid = $1`;
+  const args = [firebase_uid];
+  return db.query(sql, args).then(({ rows }) => {
+    if (rows.length === 0) {
+      return Promise.reject({
+        msg: `User with Firebase UID "${firebase_uid}" is not found`,
+        status: 404,
+      });
+    }
+    return rows[0];
+  });
+}
+
+function selectUserAmenitiesByUserId({ user_id }) {
+  if (!user_id) {
+    return Promise.reject({
+      msg: 'User ID is missing',
+      status: 400,
+    });
+  }
+  const sql = `
+    SELECT amenities.name
+    FROM amenities
+    JOIN user_preferences ON amenities.id = user_preferences.amenity_id
+    WHERE user_preferences.user_id = $1;
+  `;
+  const args = [user_id];
+  return db.query(sql, args).then(({ rows }) => {
+    return rows;
+  });
+}
+
 module.exports = {
   selectUsers,
-  selectUserByUsername,
   insertUser,
   selectUserByUserId,
   updateUserByUserId,
@@ -396,4 +416,6 @@ module.exports = {
   selectUserReviewsByUserId,
   selectUserReviewByReviewId,
   deleteUserReview,
+  selectUserByFirebaseUid,
+  selectUserAmenitiesByUserId,
 };

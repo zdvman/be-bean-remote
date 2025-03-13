@@ -35,7 +35,7 @@ exports.createTables = (db) => {
               id SERIAL PRIMARY KEY,
               owner_id INT REFERENCES users(id) ON DELETE CASCADE,
               name VARCHAR(255) NOT NULL,
-              description TEXT,
+              description TEXT NOT NULL,
               address TEXT NOT NULL,
               location GEOGRAPHY(Point, 4326), -- GPS coordinates
               -- Owner can update how busy (occupancy) the cafe is
@@ -105,7 +105,7 @@ exports.createTables = (db) => {
               id SERIAL PRIMARY KEY,
               user_id INT REFERENCES users(id) ON DELETE CASCADE NOT NULL,
               cafe_id INT REFERENCES cafes(id) ON DELETE CASCADE NOT NULL,
-              rating INT CHECK (rating BETWEEN 1 AND 5),
+              rating INT CHECK (rating BETWEEN 1 AND 5) NOT NULL,
               review_text TEXT NOT NULL,
               helpful_count INT DEFAULT 0,
               created_at TIMESTAMP DEFAULT NOW()

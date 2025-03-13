@@ -62,3 +62,29 @@ exports.checkCafeIsAlreadyInFavourites = (user_id, cafe_id) => {
     return Promise.resolve();
   });
 };
+
+exports.checkReviewExists = (id) => {
+  const sql = `SELECT id FROM reviews WHERE id = $1`;
+  return db.query(sql, [id]).then(({ rows }) => {
+    if (rows.length === 0) {
+      return Promise.reject({
+        status: 404,
+        msg: `Review with ID "${id}" is not found`,
+      });
+    }
+    return Promise.resolve();
+  });
+};
+
+exports.checkAmenityExists = (amenity) => {
+  const sql = `SELECT name FROM amenities WHERE name = $1`;
+  return db.query(sql, [amenity]).then(({ rows }) => {
+    if (rows.length === 0) {
+      return Promise.reject({
+        status: 404,
+        msg: `Amenity "${amenity}" is not found`,
+      });
+    }
+    return Promise.resolve();
+  });
+}

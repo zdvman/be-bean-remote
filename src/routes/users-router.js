@@ -6,7 +6,7 @@ const {
   patchUserByUserId,
   postUser,
   getUserByUserId,
-  patchUserAmenitiersByUserId,
+  patchUserAmenitiesByUserId,
   deleteUserByUserId,
   deleteUserFavouriteCafeByCafeId,
   postUserFavouriteCafeByUserId,
@@ -14,11 +14,14 @@ const {
   getUserReviewsByUserId,
   getUserReviewByReviewId,
   deleteUserReviewByReviewId,
+  getUserByFirebaseUid,
+  getUserAmenitiesByUserId,
 } = require('../controllers/users.controllers');
 const {
   authMiddleware,
   restrictTo,
   allowToUserOrAdmin,
+  allowToFirebaseUserOrAdmin,
 } = require('../middleware/auth'); // Import both middleware
 
 // Protected route: Get all users (requires authentication, restrict to admins only)
@@ -29,31 +32,37 @@ usersRouter
 
 // Protected route: Get user by user ID (requires authentication, resticts to user (tyhe owner of profile) or admin)
 usersRouter
-  .route('/:id')
+  .route('/:user_id')
   .get(authMiddleware, allowToUserOrAdmin, getUserByUserId)
   .patch(authMiddleware, allowToUserOrAdmin, patchUserByUserId)
   .delete(authMiddleware, allowToUserOrAdmin, deleteUserByUserId);
 
+// Protected route: Get user by Firebase UID (requires authentication, restricts to user (the owner of profile) or admin)
+usersRouter
+  .route('/firebase/data')
+  .get(authMiddleware, allowToFirebaseUserOrAdmin, getUserByFirebaseUid);
+
 // Protected route: Patch user amenities by user ID (requires authentication, restricts to user (the owner of profile) or admin)
 usersRouter
-  .route('/:id/amenities')
-  .patch(authMiddleware, allowToUserOrAdmin, patchUserAmenitiersByUserId);
+  .route('/:user_id/amenities')
+  .get(authMiddleware, allowToUserOrAdmin, getUserAmenitiesByUserId)
+  .patch(authMiddleware, allowToUserOrAdmin, patchUserAmenitiesByUserId);
 
 usersRouter
-  .route('/:id/favourites')
+  .route('/:user_id/favourites')
   .get(authMiddleware, allowToUserOrAdmin, getUserFavouritesByUserId)
   .post(authMiddleware, allowToUserOrAdmin, postUserFavouriteCafeByUserId);
 
 usersRouter
-  .route('/:id/favourites/:cafe_id')
+  .route('/:user_id/favourites/:cafe_id')
   .delete(authMiddleware, allowToUserOrAdmin, deleteUserFavouriteCafeByCafeId);
 
 usersRouter
-  .route('/:id/reviews')
+  .route('/:user_id/reviews')
   .get(authMiddleware, allowToUserOrAdmin, getUserReviewsByUserId);
 
 usersRouter
-  .route('/:id/reviews/:review_id')
+  .route('/:user_id/reviews/:review_id')
   .get(authMiddleware, allowToUserOrAdmin, getUserReviewByReviewId)
   .delete(authMiddleware, allowToUserOrAdmin, deleteUserReviewByReviewId);
 
