@@ -150,9 +150,34 @@ npm test
 
 - **`npm run setup-dbs`** - Creates the required PostgreSQL databases.
 - **`npm run seed`** - Seeds the development database with sample data.
+- **`npm run seed-test`** - Seeds the test database.
+- **`npm run seed-dev`** - Seeds the development database.
+- **`npm run seed-prod`** - Seeds the production database.
 - **`npm test`** - Runs the Jest test suite.
+- **`npm run prepare`** - Installs Husky for pre-commit testing.
+- **`npm run start-test`** - Starts the test server using nodemon.
 - **`npm run start-dev`** - Starts the development server using nodemon.
-- **`npm start`** - Starts the production server.
+- **`npm run start`** - Starts the production server.
+
+---
+
+## 🛠 CI/CD & Automation
+
+This project uses **GitHub Actions** for continuous integration and deployment. The pipeline includes:
+
+- Running automated tests using Jest and Supertest.
+- Deploying to Render upon successful test completion.
+- Configuring PostGIS in the test database within the CI environment.
+
+The configuration can be found in `.github/workflows/ci.yml`.
+
+Additionally, **Husky** is used to enforce pre-commit testing:
+
+```sh
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+npm test
+```
 
 ---
 
@@ -186,19 +211,14 @@ npm run seed-prod
 
 ---
 
-## 🛠 Tech Stack
+## 📌 API Structure (MVC & Routing)
 
-| **Technology**     | **Purpose**  |
-|-------------------|-------------------|
-| **Node.js**       | Backend runtime for handling API requests efficiently. |
-| **Express.js**    | Web framework for creating RESTful APIs. |
-| **PostgreSQL**    | Relational database for structured data storage. |
-| **PostGIS**       | Geospatial database extension for efficient location filtering. |
-| **Supabase**      | Cloud-hosted PostgreSQL with real-time capabilities. |
-| **Firebase Auth** | Secure authentication for user login and session management. |
-| **Jest & Supertest** | Testing framework for API stability and correctness. |
-| **GitHub Actions** | CI/CD automation for testing and deployment. |
-| **Render**        | Cloud hosting service for backend deployment. |
+The API follows an **MVC (Model-View-Controller)** architecture:
+
+- **Models**: Handle database queries (located in `src/models/`).
+- **Controllers**: Process business logic and database interaction (located in `src/controllers/`).
+- **Routes**: Define API endpoints and link controllers (located in `src/routes/`).
+- **Middleware**: Handles authentication and error handling (`src/middleware/`).
 
 ---
 
