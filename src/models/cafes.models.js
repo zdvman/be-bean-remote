@@ -139,75 +139,13 @@ function selectCafesByRadius({ lat, lon, radius }) {
     });
   }
   const sql = `
-  SELECT 
-    id, 
-    name, 
-    description, 
-    address, 
-    busy_status, 
-    is_verified, 
-    created_at,
-    ST_Y(location::geometry) AS latitude,
-    ST_X(location::geometry) AS longitude
-  FROM cafes
-  WHERE ST_DWithin(
-    ST_GeogFromText('POINT(' || $1 || ' ' || $2 || ')'),
-    location,
-    $3
-  )
-  `;
-  return db.query(sql, params).then(({ rows }) => {
-    return rows;
-  });
-}
-
-function selectCafesByCoordinates({ minLat, maxLat, minLon, maxLon }) {
-  console.log(minLat, maxLat, minLon, maxLon);
-  const params = [minLon, minLat, maxLon, maxLat].map(Number);
-  if (params.some(isNaN)) {
-    return Promise.reject({
-      status: 400,
-      msg: 'Invalid coordinates',
-    });
-  }
-  const sql = `
-  SELECT 
-    id, 
-    name, 
-    description, 
-    address, 
-    busy_status, 
-    is_verified, 
-    created_at,
-    ST_Y(location::geometry) AS latitude,
-    ST_X(location::geometry) AS longitude
-  FROM cafes
-  WHERE ST_Covers(
-    ST_GeogFromText('POLYGON((' || $1 || ' ' || $2 || ', ' || $3 || ' ' || $2 || ', ' || $3 || ' ' || $4 || ', ' || $1 || ' ' || $4 || ', ' || $1 || ' ' || $2 || '))'),
-    location
-  )
-  `;
-  return db.query(sql, params).then(({ rows }) => {
-    return rows;
-  });
-}
-
-function selectCafesByRadius({ lat, lon, radius }) {
-  const params = [lon, lat, radius].map(Number);
-  if (params.some(isNaN)) {
-    return Promise.reject({
-      status: 400,
-      msg: 'Invalid coordinates',
-    });
-  }
-  const sql = `
-  SELECT 
-    id, 
-    name, 
-    description, 
-    address, 
-    busy_status, 
-    is_verified, 
+  SELECT
+    id,
+    name,
+    description,
+    address,
+    busy_status,
+    is_verified,
     created_at,
     ST_Y(location::geometry) AS latitude,
     ST_X(location::geometry) AS longitude
