@@ -50,7 +50,7 @@ exports.handle404 = (req, res) => {
 };
 
 exports.handlePSQLErrors = (err, req, res, next) => {
-  console.log(err);
+  // console.log(err);
   // invalid input syntax,
   // out of range for type integer,
   // NOT NULL constraint violation - missing required field
