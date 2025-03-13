@@ -245,7 +245,7 @@ function insertUserFavouriteCafeByUserId({ user_id }, { cafe_id }) {
     .then(({ rows }) => rows[0]);
 }
 
-function deleteUserFavouriteCafe({ user_id }, { cafe_id }) {
+function deleteUserFavouriteCafe({ user_id, cafe_id }) {
   if (!user_id) {
     return Promise.reject({ msg: 'User ID is missing', status: 400 });
   }
