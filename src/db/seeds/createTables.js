@@ -21,6 +21,13 @@ exports.createTables = (db) => {
           `
       )
 
+      // ---- ADD GIST INDEX ON users.location ----
+      .then(() => {
+        return db.query(`
+            CREATE INDEX idx_users_location ON users USING GIST (location);
+          `);
+      })
+
       // ---- CAFES ----
       .then(() => {
         return db.query(`
@@ -28,7 +35,7 @@ exports.createTables = (db) => {
               id SERIAL PRIMARY KEY,
               owner_id INT REFERENCES users(id) ON DELETE CASCADE,
               name VARCHAR(255) NOT NULL,
-              description TEXT,
+              description TEXT NOT NULL,
               address TEXT NOT NULL,
               location GEOGRAPHY(Point, 4326), -- GPS coordinates
               -- Owner can update how busy (occupancy) the cafe is
@@ -36,6 +43,13 @@ exports.createTables = (db) => {
               is_verified BOOLEAN DEFAULT FALSE, -- Admin verification
               created_at TIMESTAMP DEFAULT NOW()
             );
+          `);
+      })
+
+      // ---- ADD GIST INDEX ON cafes.location ----
+      .then(() => {
+        return db.query(`
+            CREATE INDEX idx_cafes_location ON cafes USING GIST (location);
           `);
       })
 
@@ -91,7 +105,7 @@ exports.createTables = (db) => {
               id SERIAL PRIMARY KEY,
               user_id INT REFERENCES users(id) ON DELETE CASCADE NOT NULL,
               cafe_id INT REFERENCES cafes(id) ON DELETE CASCADE NOT NULL,
-              rating INT CHECK (rating BETWEEN 1 AND 5),
+              rating INT CHECK (rating BETWEEN 1 AND 5) NOT NULL,
               review_text TEXT NOT NULL,
               helpful_count INT DEFAULT 0,
               created_at TIMESTAMP DEFAULT NOW()

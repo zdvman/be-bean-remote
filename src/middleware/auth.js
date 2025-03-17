@@ -24,7 +24,7 @@ const authMiddleware = (req, res, next) => {
     })
     .then((result) => {
       if (!result?.rows) {
-        // console.error('❌ Database error');
+        console.error('❌ Database error');
         return res.status(500).json({ msg: 'Database error' });
       }
 
@@ -59,13 +59,13 @@ const authMiddleware = (req, res, next) => {
     });
 };
 
-// Middleware to allow access to user or admin
+// Middleware to allow access to user (owner of the profile) or admin
 const allowToUserOrAdmin = (req, res, next) => {
   if (!req?.user || !req.user?.dbUser) {
     return res.status(401).json({ msg: 'User not authenticated' });
   }
 
-  const requestedUserId = parseInt(req?.params?.id, 10);
+  const requestedUserId = parseInt(req?.params?.user_id, 10);
   const authenticatedUserId = req?.user?.dbUser?.id;
   const isAdmin = req?.user?.dbUser?.role === 'admin';
 
@@ -78,10 +78,6 @@ const allowToUserOrAdmin = (req, res, next) => {
           .json({ msg: `User with ID "${requestedUserId}" is not found` });
       }
 
-      // console.log(
-      //   `🔍 Checking permissions: requestedUserId=${requestedUserId}, authenticatedUserId=${authenticatedUserId}, isAdmin=${isAdmin}`
-      // );
-
       // Allow access if:
       // - The authenticated user is an admin
       // - The authenticated user is requesting their own reviews
@@ -93,15 +89,64 @@ const allowToUserOrAdmin = (req, res, next) => {
     .catch(next);
 };
 
-// Middleware to restrict access by role
-const restrictTo = (role) => (req, res, next) => {
-  if (!req.user || !req.user.dbUser) {
+// Middleware to allow access to Firebase user or admin
+const allowToFirebaseUserOrAdmin = (req, res, next) => {
+  if (!req?.user || !req.user?.dbUser) {
     return res.status(401).json({ msg: 'User not authenticated' });
   }
-  if (req.user.dbUser.role !== role) {
-    return res.status(403).json({ msg: 'Forbidden' });
+
+  const requestedFirebaseUid = req?.query?.firebase_uid;
+  const authenticatedFirebaseUid = req?.user?.uid;
+  const isAdmin = req?.user?.dbUser?.role === 'admin';
+
+  if (!requestedFirebaseUid) {
+    return res.status(400).json({ msg: 'Firebase UID is missing' });
   }
-  next();
+
+  // Allow access if:
+  // - The authenticated user is an admin
+  // - The authenticated user is requesting their own data
+  if (isAdmin || requestedFirebaseUid === authenticatedFirebaseUid) {
+    return next();
+  }
+  return res.status(403).json({ msg: 'Forbidden' });
 };
 
-module.exports = { authMiddleware, restrictTo, allowToUserOrAdmin };
+// Middleware to restrict access by one role or multiple roles
+const restrictTo =
+  (...roles) =>
+  (req, res, next) => {
+    if (!req.user || !req.user.dbUser) {
+      return res.status(401).json({ msg: 'User not authenticated' });
+    }
+    if (!roles.includes(req.user.dbUser.role)) {
+      return res.status(403).json({ msg: 'Forbidden' });
+    }
+    next();
+  };
+
+// Middleware to allow access to review owner or admin
+const allowToReviewOwnerOrAdmin = (req, res, next) => {
+  const reviewId = parseInt(req.params.review_id, 10);
+  const userId = req.user.dbUser.id;
+  const isAdmin = req.user.dbUser.role === 'admin';
+  db.query('SELECT user_id FROM reviews WHERE id = $1', [reviewId])
+    .then((result) => {
+      if (result.rows.length === 0)
+        return res
+          .status(404)
+          .json({ msg: `Review with ID "${reviewId}" not found` });
+      const reviewOwnerId = result.rows[0].user_id;
+      if (isAdmin || reviewOwnerId === userId) return next();
+      return res.status(403).json({ msg: 'Forbidden' });
+    })
+    .catch(next);
+};
+
+module.exports = {
+  authMiddleware,
+  restrictTo,
+  allowToUserOrAdmin,
+  allowToReviewOwnerOrAdmin,
+  allowToFirebaseUserOrAdmin,
+};
